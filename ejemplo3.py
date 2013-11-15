@@ -3,11 +3,13 @@ import lib.db as db
 import ConfigParser
 
 
+
+
 if __name__ == "__main__":
 
 
 	cfg = ConfigParser.ConfigParser()
-	if not cfg.read(['/home/sblanco/Documents/Trabajo/RepositorioGit/private/gestion_ad.ini']):
+	if not cfg.read(['../private/gestion_ad.ini']):
 		print 'Archivo de configuracion no encontrado :('
 	else:
 		try:
@@ -20,9 +22,8 @@ if __name__ == "__main__":
 
 
 		ListaUsrs 	= ad.gestionUsuarios ( nombre, passwd, basedn, servidor )
-		ListaUsrs.generarInforme ()
 
-
-
-
+		cuentasSinLogin = ListaUsrs.getSinLogin (720)
+		for usuario, datos in cuentasSinLogin.iteritems ():
+			print 'El usuario \033[91m%s\033[0m lleva sin entrar al sistema %s dias' % (usuario,datos['diasUltimoLogin'])
 
