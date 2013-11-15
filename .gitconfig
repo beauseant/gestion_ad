@@ -1,0 +1,8 @@
+[user]
+	name=Beauseant
+	email=suscripcion@bluethinking.com
+[color]
+	status=auto
+	branch = auto
+	diff = auto
+	interactive = auto
