@@ -2,12 +2,18 @@ import ad.gestionUsuarios as ad
 import lib.db as db
 import lib.enviarEmail as ee
 import ConfigParser
-
+import logging
 
 
 
 if __name__ == "__main__":
 
+	logger = logging.getLogger('gestionCuentasAD')
+	hdlr = logging.FileHandler('/var/tmp/gestionCuentasAD.log')
+	formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+	hdlr.setFormatter(formatter)
+	logger.addHandler(hdlr) 
+	logger.setLevel(logging.INFO)
 
 	cfg = ConfigParser.ConfigParser()
 	if not cfg.read(['../private/gestion_ad.ini']):
@@ -24,32 +30,32 @@ if __name__ == "__main__":
 			puertoemail	= cfg.get ( 'CORREO','puerto')
 			textoemail	= cfg.get ( 'CORREO','texto')
 			asuntoemail	= cfg.get ( 'CORREO','asunto')
-			listab		= cfg.get ( 'LISTA_BLANCA','listab')
-			
-			
-		except:
+				
+		except Exception as e:
+			logger.error( e )
 			exit ()
+	
 
 
 		ListaUsrs 	= ad.gestionUsuarios ( nombre, passwd, basedn, servidor )
 
 		remitemail	= '%s@tsc.uc3m.es'%(useremail)
-		destemail	= 'mcanes@tsc.uc3m.es'
 		
-		listaBlanca	= ['IWAM_ARCHAEOPTERIX', 'Administrador', 'com_empresa', 'gsm', 'TsInternetUser', 'ILS_ANONYMOUS_USER', 'practicas1', 'IUSR_ARCHAEOPTERIX', 'anibal', 'root']
+		#Por si queremos que algun usuario no se le tenga en cuenta:
+		listaBlanca	= []
 
-		print listaBlanca
 
 		cuentasPorCaducar	= ListaUsrs.getCaducadas ( 30 )
 		
 		
 		for usuario, datos in cuentasPorCaducar.iteritems ():
 			if not (usuario in listaBlanca):
-				print usuario
+				logger.info('Enviando un correo al usuario %s' % usuario)
 				textotmp = textoemail.replace('--login--', usuario)
 				textotmp = textotmp.replace('--salto--', '\n')
 				textotmp = textotmp.replace('--atilde--', '&aacute;')
 				textotmp = textotmp.replace('--etilde--', '&eacute;')
+				destemail= '%s@tsc.uc3m.es'%(usuario)
 				ConfEmail = ee.enviarEmail (asuntoemail, textotmp, remitemail, destemail, servidoremail, puertoemail, useremail, passwdemail)
 				ConfEmail.enviar()
 

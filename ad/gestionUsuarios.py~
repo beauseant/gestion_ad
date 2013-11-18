@@ -41,7 +41,7 @@ class gestionUsuarios:
 
 		lista = {}
 		for k,v in self.__usuarios.iteritems():
-			if (v['diasParaCaducar'] <> -1) and  ( v['diasParaCaducar'] < 30 ):
+			if (v['diasParaCaducar'] <> -150803) and  ( v['diasParaCaducar'] < 30 ) and (v['diasParaCaducar'] <> -1):
 				lista [k] = v
 
 		return lista
@@ -58,7 +58,7 @@ class gestionUsuarios:
 	def setFechaCaducidad ( self, cn, fecha ):
 		tstamp = int (fecha.strftime("%s"))
 		print tstamp
-		fecha = str(self.__convUnixTime ( tstamp ),1)
+		fecha = str(self.__convUnixTime ( tstamp,1 ))
 		print fecha
 		print self.__convWinTime ( int ( fecha ) )
 		#print cn
@@ -90,6 +90,7 @@ class gestionUsuarios:
 			'''results = [entry for dn, entry in result if isinstance(entry, dict)]'''
 
 			fechaActual = datetime.today()
+
 
 			for usr in result:
 		

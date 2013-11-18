@@ -15,15 +15,15 @@ class enviarEmail:
 	__puerto 	= 0
 	__usuario  	= ""
 
-	def __init__(self, asunto, texto, remitente, destinatario, servidor, puerto, usuario, contrasenya):
-		self.__prueba = texto
-		self.__asunto = asunto
-		self.__texto = texto
-		self.__remitente = remitente
-		self.__destinatario = destinatario
-		self.__servidor = servidor
-		self.__puerto = puerto
-		self.__usuario = usuario
+	def __init__(self, asunto, texto, remitente, destinatario, servidor, puerto, usuario, contrasenya ):
+		self.__prueba 		= texto
+		self.__asunto 		= asunto
+		self.__texto 		= texto
+		self.__remitente 	= remitente
+		self.__destinatario 	= destinatario
+		self.__servidor 	= servidor
+		self.__puerto 		= puerto
+		self.__usuario 		= usuario
 		
 		
 	def enviar(self):
@@ -55,8 +55,9 @@ class enviarEmail:
 	    except smtplib.SMTPSenderRefused:
 		print("mail error", "The server didnt accept the from_addr")
 	    except smtplib.SMTPDataError:
-		print("mail error", "An unexpected error code, Data refused")
+		print ( "mail error", "An unexpected error code, Data refused" )
+
 	    smtp_server.quit()
 
-	    print 'Se ha enviado un correo electronico a %s'%(self.__destinatario)
+	    #print 'Se ha enviado un correo electronico a %s'%(self.__destinatario)
 
