@@ -25,11 +25,12 @@ class gestionUsuarios:
 
 
 	def __convUnixTime ( self, UnixTimesTamp, accExp = 0 ):
-		MagicNumber = 11644473600
+		MagicNumber = 116444736000000000
 		if not accExp:
 			MagicNumber += 86400
 
 		return ( (UnixTimesTamp *10000000) + MagicNumber )
+
 
 
 	def getUsr ( self, login ):
@@ -57,10 +58,10 @@ class gestionUsuarios:
 	def setFechaCaducidad ( self, cn, fecha ):
 		tstamp = int (fecha.strftime("%s"))
 		print tstamp
-		fecha = str(self.__convUnixTime ( tstamp ))
+		fecha = str(self.__convUnixTime ( tstamp ),1)
 		print fecha
 		print self.__convWinTime ( int ( fecha ) )
-		print cn
+		#print cn
 
 		attrib = [(ldap.MOD_REPLACE, 'accountExpires', fecha )]
 		self.__ldap_con.modify_s( cn, attrib)    
