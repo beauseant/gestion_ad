@@ -1,15 +1,28 @@
-import ad.gestionUsuarios as ad
+'''
+
+@author: breakthoven
+'''
+
+import lib.gestionUsuarios as ad
 import lib.db as db
 import ConfigParser
-
+import argparse
 
 
 
 if __name__ == "__main__":
 
+	parser	= argparse.ArgumentParser ( description='Gestion de un Active Directory desde python. Muestra cuentas caducadas.' )
+
+	parser.add_argument('config'  , action = "store", metavar='config', type=str, help='fichero de configuracion')
+	parser.add_argument('dias'  , action = "store", metavar='dias', type=str, help='mostrar cuentas caducadas hace dias')
+
+	args	 =	parser.parse_args()
+
+
 
 	cfg = ConfigParser.ConfigParser()
-	if not cfg.read(['../private/gestion_ad.ini']):
+	if not cfg.read([ args.config]):
 		print 'Archivo de configuracion no encontrado :('
 	else:
 		try:
@@ -28,7 +41,7 @@ if __name__ == "__main__":
 		'''
 
 		#Usuarios cuya fecha caducidad en dias < que parametro (se descarta los que no tengan fecha de caducidad asignada)
-		cuentasPorCaducar	= ListaUsrs.getCaducadas ( 30 )
+		cuentasPorCaducar	= ListaUsrs.getCaducadas ( int (args.dias) )
 
 		for usuario, datos in cuentasPorCaducar.iteritems ():
 			if ( datos['diasParaCaducar'] < 0 ):

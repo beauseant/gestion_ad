@@ -1,22 +1,39 @@
-import ad.gestionUsuarios as ad
+'''
+
+@author: mcanes
+
+'''
+
+
+import lib.gestionUsuarios as ad
 import lib.db as db
 import lib.enviarEmail as ee
 import ConfigParser
 import logging
-
+import argparse
 
 
 if __name__ == "__main__":
 
+
+	parser	= argparse.ArgumentParser ( description='Gestion de un Active Directory desde python. Envia un correo a los usuarios cuyas cuentas hayan caducado' )
+
+	parser.add_argument('config'  , action = "store", metavar='config', type=str, help='fichero de configuracion')
+	parser.add_argument('log'  , action = "store", metavar='log', type=str, help='directorio donde volcar el log con los resultados')
+	parser.add_argument('dias'  , action = "store", metavar='dias', type=str, help='se enviara el correo sobre las cuentas que lleven caducadas dias o mas')
+
+	args	 =	parser.parse_args()
+
+
 	logger = logging.getLogger('gestionCuentasAD')
-	hdlr = logging.FileHandler('/var/tmp/gestionCuentasAD.log')
+	hdlr = logging.FileHandler( args.log )
 	formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
 	hdlr.setFormatter(formatter)
 	logger.addHandler(hdlr) 
 	logger.setLevel(logging.INFO)
 
 	cfg = ConfigParser.ConfigParser()
-	if not cfg.read(['../private/gestion_ad.ini']):
+	if not cfg.read([ args.config ]):
 		print 'Archivo de configuracion no encontrado :('
 	else:
 		try:
@@ -45,7 +62,7 @@ if __name__ == "__main__":
 		listaBlanca	= []
 
 
-		cuentasPorCaducar	= ListaUsrs.getCaducadas ( 30 )
+		cuentasPorCaducar	= ListaUsrs.getCaducadas ( int (args.dias) )
 		
 		
 		for usuario, datos in cuentasPorCaducar.iteritems ():
