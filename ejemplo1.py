@@ -32,7 +32,7 @@ if __name__ == "__main__":
 			SI QUEREMOS SACAR DATOS INDIVIDUALES DE UN USUARIO:
 		'''
 
-		login		= 'mcanes'
+		login		= 'sblanco'
 		try:
 			usr		=  ListaUsrs.getUsr ( login )
 			print 'Al usuario %s le caduca la cuenta en %s dias, y hace %s dias que no entra al sistema' % (login,usr['diasParaCaducar'],usr['diasUltimoLogin'])
@@ -40,11 +40,11 @@ if __name__ == "__main__":
 			print '\t\t\t CN: % s' % ( usr['cn'] )
 
 			#Que caduque en dos meses:
-			#fecha_caducidad	= ((datetime.today() + timedelta(2*365/12)))
+			fecha_caducidad	= ((datetime.today() + timedelta(2*365/12)))
 
 
-			#print fecha_caducidad
-			#ListaUsrs.setFechaCaducidad ( usr ['cn'], fecha_caducidad )
+			print fecha_caducidad
+			ListaUsrs.setFechaCaducidad ( usr ['cn'], fecha_caducidad )
 
 
 		except Exception as e:
