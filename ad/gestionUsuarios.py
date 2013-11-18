@@ -6,6 +6,7 @@ class gestionUsuarios:
 
 	__usuarios = {}
 	__db	   = ''
+	__ldap_con = ''
 
 
 	#When searching the internet, you will find many formulas that use the number 11644473600. This 
@@ -23,6 +24,14 @@ class gestionUsuarios:
 		return datetime.fromtimestamp( (WinTimestamp /10000000) - MagicNumber )
 
 
+	def __convUnixTime ( self, UnixTimesTamp, accExp = 0 ):
+		MagicNumber = 11644473600
+		if not accExp:
+			MagicNumber += 86400
+
+		return ( (UnixTimesTamp *10000000) + MagicNumber )
+
+
 	def getUsr ( self, login ):
 
 		return self.__usuarios[ login ]
@@ -36,6 +45,28 @@ class gestionUsuarios:
 
 		return lista
 
+	def getSinLogin (self, dias ):
+		lista = {}
+		for k,v in self.__usuarios.iteritems():
+			if (v['diasUltimoLogin'] > dias):
+				lista [k] = v
+
+		return lista
+
+
+	def setFechaCaducidad ( self, cn, fecha ):
+		tstamp = int (fecha.strftime("%s"))
+		print tstamp
+		fecha = str(self.__convUnixTime ( tstamp ))
+		print fecha
+		print self.__convWinTime ( int ( fecha ) )
+		print cn
+
+		attrib = [(ldap.MOD_REPLACE, 'accountExpires', fecha )]
+		self.__ldap_con.modify_s( cn, attrib)    
+
+
+
 	def generarInforme ( self ):
 
 		self.__db = db.DataBase ( 'prueba' )
@@ -43,18 +74,18 @@ class gestionUsuarios:
 
 	def __init__ (self,nombre, passwd, basedn, servidor):
 
-		l = ldap.initialize( 'ldap://' + servidor )
+		self.__ldap_con = ldap.initialize( 'ldap://' + servidor )
 
 		try:
-			l.protocol_version = ldap.VERSION3
-			l.set_option(ldap.OPT_REFERRALS, 0)
-			l.simple_bind_s( nombre, passwd)
+			self.__ldap_con.protocol_version = ldap.VERSION3
+			self.__ldap_con.set_option(ldap.OPT_REFERRALS, 0)
+			self.__ldap_con.simple_bind_s( nombre, passwd)
 			scope = ldap.SCOPE_SUBTREE
 			filter = "(&(objectClass=user)(name=*))"
 
 			attributes = ['dn','sAMAccountName','accountExpires','lastLogon']
 
-			result = l.search_s(basedn, scope, filter, attributes)
+			result = self.__ldap_con.search_s(basedn, scope, filter, attributes)
 			'''results = [entry for dn, entry in result if isinstance(entry, dict)]'''
 
 			fechaActual = datetime.today()
@@ -106,12 +137,31 @@ class gestionUsuarios:
 				datos ['fechaCaducidad']	= fechaExp
 				datos ['diasUltimoLogin']	= daysFromLogin
 				datos ['fechaUltLogin']		= fechaLastL
+				datos ['cn']			= usr[0]
 
-				self.__usuarios [ login ] = datos
-		
-	
+				self.__usuarios [ login ] = datos	
 
 		except ldap.LDAPError as e:
 			print(e)
 
+
+	def __del__ ( self ):
+			self.__ldap_con.unbind ()
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+    def disable(self):
+        self.HEADER = ''
+        self.OKBLUE = ''
+        self.OKGREEN = ''
+        self.WARNING = ''
+        self.FAIL = ''
+        self.ENDC = ''
 

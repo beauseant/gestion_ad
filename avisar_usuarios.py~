@@ -3,6 +3,8 @@ import lib.db as db
 import ConfigParser
 
 
+#####################################################################
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -21,6 +23,30 @@ class bcolors:
 
 
 
+#####################################################################
+
+def ejemplo1 ( lista ):
+	#Usuarios cuya fecha caducidad en dias < que parametro (se descarta los que no tengan fecha de caducidad asignada)
+	cuentasPorCaducar	= lista.getCaducadas ( 30 )
+
+	for usuario, datos in cuentasPorCaducar.iteritems ():
+		if ( datos['diasParaCaducar'] < 0 ):
+			print 'Al usuario \033[91m%s\033[0m le ha caducado la cuenta en %s dias, y hace %s dias que no entra al sistema' % (usuario,datos['diasParaCaducar'],datos['diasUltimoLogin'])
+		else:
+			print 'Al usuario \033[92m%s\033[0m le caduca la cuenta en %s dias, y hace %s dias que no entra al sistema' % (usuario,datos['diasParaCaducar'],datos['diasUltimoLogin'])
+
+
+#####################################################################
+
+def ejemplo2 ( lista ):
+	cuentasSinLogin = lista.getSinLogin (720)
+	for usuario, datos in cuentasSinLogin.iteritems ():
+		print 'El usuario \033[91m%s\033[0m lleva sin entrar al sistema %s dias' % (usuario,datos['diasUltimoLogin'])
+
+
+
+#####################################################################
+
 if __name__ == "__main__":
 
 
@@ -28,10 +54,13 @@ if __name__ == "__main__":
 	if not cfg.read(['/home/sblanco/Documents/Trabajo/RepositorioGit/private/gestion_ad.ini']):
 		print 'Archivo de configuracion no encontrado :('
 	else:
-		nombre 		= cfg.get ( 'LDAP','nombre')
-		passwd 		= cfg.get ( 'LDAP','passwd')
-		basedn		= cfg.get ( 'LDAP','basedn')
-		servidor	= cfg.get ( 'LDAP','servidor')
+		try:
+			nombre 		= cfg.get ( 'LDAP','nombre')
+			passwd 		= cfg.get ( 'LDAP','passwd')
+			basedn		= cfg.get ( 'LDAP','basedn')
+			servidor	= cfg.get ( 'LDAP','servidor')
+		except:
+			exit ()
 
 
 		ListaUsrs 	= ad.gestionUsuarios ( nombre, passwd, basedn, servidor )
@@ -48,17 +77,18 @@ if __name__ == "__main__":
 
 
 		'''
-			SI QUEREMOS SACAR DATOS GENERALES DE FECHAS:
+			SI QUEREMOS LAS CUENTAS CADUCADAS HACE X DIAS:
 		'''
 	
-		#Usuarios cuya fecha caducidad en dias < que parametro (se descarta los que no tengan fecha de caducidad asignada)
-		cuentasPorCaducar	= ListaUsrs.getCaducadas ( 30 )
+		ejemplo1 ( ListaUsrs )
 
-		for usuario, datos in cuentasPorCaducar.iteritems ():
-			if ( datos['diasParaCaducar'] < 0 ):
-				print 'Al usuario \033[91m%s\033[0m le ha caducado la cuenta en %s dias, y hace %s dias que no entra al sistema' % (usuario,datos['diasParaCaducar'],datos['diasUltimoLogin'])
-			else:
-				print 'Al usuario \033[92m%s\033[0m le caduca la cuenta en %s dias, y hace %s dias que no entra al sistema' % (usuario,datos['diasParaCaducar'],datos['diasUltimoLogin'])
+		'''
+			SI QUEREMOS SACAR LOS USUARIOS QUE NO HAN HECHO LOGIN EN X DIAS:
+		'''
+		
+		ejemplo2 ( ListaUsrs )
+
+
 
 
 		ListaUsrs.generarInforme ()
