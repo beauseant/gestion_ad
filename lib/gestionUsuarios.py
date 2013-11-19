@@ -53,7 +53,7 @@ class gestionUsuarios:
 		for k,v in self.__usuarios.iteritems():
 			#En los windows antiguos las cuentas en las que no se ha entrado nunca figura un 150803 (la fecha de inicio
 			#para el timestamp (1560), en los modernos figura un -1:
-			if (v['diasParaCaducar'] <> -150803) and  ( v['diasParaCaducar'] < 30 ) and (v['diasParaCaducar'] <> -1):
+			if (v['diasParaCaducar'] <> -150804) and  ( v['diasParaCaducar'] < dias ) and (v['diasParaCaducar'] <> -1):
 				lista [k] = v
 
 		return lista
