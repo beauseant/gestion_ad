@@ -44,7 +44,6 @@ class gestionUsuarios:
 
 
 	def getUsr ( self, login ):
-
 		return self.__usuarios[ login ]
 
 	def getCaducadas ( self, dias ):
@@ -76,8 +75,15 @@ class gestionUsuarios:
 		#print cn
 
 		attrib = [(ldap.MOD_REPLACE, 'accountExpires', fecha )]
-		self.__ldap_con.modify_s( cn, attrib)    
+		self.__ldap_con.modify_s( cn, attrib)   
 
+	def borrarUsuario (self, login):
+		deleteDN = self.__usuarios[login]['cn']
+		print deleteDN
+		try:
+			self.__ldap_con.delete_s(deleteDN)
+		except ldap.LDAPError as e:
+			print(e)
 
 
 	def generarInforme ( self ):

@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
 	cfg = ConfigParser.ConfigParser()
 	if not cfg.read([ args.config ]):
-		print 'Archivo de configuracion no encontrado :('
+		logger.error ('Archivo de configuracion no encontrado :(')
 	else:
 		try:
 			nombre 		= cfg.get ( 'LDAP','nombre')
@@ -70,7 +70,7 @@ if __name__ == "__main__":
 			textotmp = textotmp.replace('--fechacad--', datos ['fechaCaducidad'].strftime('%m/%d/%Y'))
 			textotmp = textotmp.replace('--tab--', ':')
 			textoemail=textoemail + textotmp
-		logger.info('Enviando correo con cuentas caducadas a sisifo@tsc.uc3m.es')
+		logger.info('Enviando correo con cuentas caducadas.')
 		ConfEmail = ee.enviarEmail (asuntoemail, textoemail, remitemail, destemail, servidoremail, puertoemail, useremail, passwdemail)
 		ConfEmail.enviar()
 
