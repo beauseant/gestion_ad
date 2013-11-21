@@ -52,6 +52,42 @@ Analizando el código de la libreria se pueden extraer nuevas funcionalidades qu
 	python ejemplo4.py ../private/gestion_ad.ini ../tmp/loggestion.log 30
 	Envia un correo avisando que la cuenta caducará en breve a todos los usuarios cuyas cuentas lleven 30 o más días caducadas.
 
+	Ejemplo5:
+	python ejemplo4.py ../private/gestion_ad.ini ../tmp/loggestion.log 720 2
+	Comprueba los usuarios que llevan al menos 720 días sin entrar al sistema y les asigna una fecha de caducidad de dos meses desde la fecha actual.
+
+	Ejemplo6:
+	python ejemplo4.py ../private/gestion_ad.ini ../tmp/loggestion.log 
+	Saca un listado de toda las cuentas caducadas y las envía por correo a la dirección indicada.
+
+	Ejemplo7:
+	python ejemplo4.py ../private/gestion_ad.ini ../tmp/loggestion.log ListaDeUsuarios.txt
+	Borraría todos los usuarios del active directory contenidos en el fichero ListaDeUsuarios
+
+**Formato del fichero de configuración:**
+[LDAP]
+nombre   = administrador@dominio
+passwd   = contraseñaadmin
+basedn   = cn=Users,dc=dominio, dc=es
+servidor = servidor.dominio.es
+
+[CORREO]
+usuario  = usuario
+passwd	 = contraseña
+servidor = servidormail.dominio.es
+puerto	 = 25
+asunto	 = Aviso de caducidad de cuenta
+texto 	 = Hola, --login--. --salto-- --salto--La cuenta que tiene en DOMINIO caducar--atilde-- en breve. --salto--Si desea seguir teniendo acceso a los servicios del departamento solicite mantener la cuenta a trav--etilde--s del sistema de incidencias: URL. --salto-- --salto--Un saludo.	
+asunto_cad 	= Listado cuentas caducadas
+texto_cad	= --login-- --tab-- --fechacad-- --salto--
+
+
+Como se puede observar en la configuración del correo se incluye un esqueleto de los mensajes que se envían para avisar a los usuarios (sobre la caducidad de su cuenta) y a los administradores (con el listado de las cuentas caducadas).
+	
+
+
+
+
 
 	
 

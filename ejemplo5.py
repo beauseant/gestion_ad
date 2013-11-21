@@ -21,7 +21,7 @@ if __name__ == "__main__":
 	parser.add_argument('config'  , action = "store", metavar='config', type=str, help='fichero de configuracion')
 	parser.add_argument('log'  , action = "store", metavar='log', type=str, help='directorio donde volcar el log con los resultados')
 	parser.add_argument('dias'  , action = "store", metavar='dias', type=str, help='se fija la caducidad para usuarios que no entran desde, como minimo, dias')
-	parser.add_argument('meses'  , action = "store", metavar='dias', type=str, help='se fija la caducidad a esas cuentas para meses')
+	parser.add_argument('meses'  , action = "store", metavar='meses', type=str, help='se fija la caducidad a esas cuentas para meses')
 
 	args	 =	parser.parse_args()
 

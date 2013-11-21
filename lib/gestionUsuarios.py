@@ -50,9 +50,9 @@ class gestionUsuarios:
 
 		lista = {}
 		for k,v in self.__usuarios.iteritems():
-			#En los windows antiguos las cuentas en las que no se ha entrado nunca figura un 150803 (la fecha de inicio
-			#para el timestamp (1560), en los modernos figura un -1:
-			if (v['diasParaCaducar'] <> -150804) and  ( v['diasParaCaducar'] < dias ) and (v['diasParaCaducar'] <> -1):
+			#En los windows antiguos las cuentas en las que no se ha entrado nunca figuran fechas del anno 1600 
+			#(la fecha de inicio para el timestamp (1560), en algunos de los mas modernos figura un -1:
+			if (not (-160000 <= v['diasParaCaducar'] <= -150000)  ) and  ( v['diasParaCaducar'] < dias ) and (v['diasParaCaducar'] <> -1):
 				lista [k] = v
 
 		return lista
@@ -78,12 +78,15 @@ class gestionUsuarios:
 		self.__ldap_con.modify_s( cn, attrib)   
 
 	def borrarUsuario (self, login):
-		deleteDN = self.__usuarios[login]['cn']
-		print deleteDN
+		salida = [0,'Descripcion error']
+
 		try:
+			deleteDN = self.__usuarios[login]['cn']
 			self.__ldap_con.delete_s(deleteDN)
-		except ldap.LDAPError as e:
-			print(e)
+			salida [0] = 1
+		except Exception as e:
+			salida [1] = e
+		return salida
 
 
 	def generarInforme ( self ):
@@ -161,7 +164,7 @@ class gestionUsuarios:
 
 				self.__usuarios [ login ] = datos	
 
-		except ldap.LDAPError as e:
+		except Exception as e:
 			print(e)
 
 

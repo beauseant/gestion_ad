@@ -1,6 +1,6 @@
 '''
 
-@author: breakthoven
+@author: mcanes
 
 '''
 
@@ -51,20 +51,21 @@ if __name__ == "__main__":
     				content = f.readlines()	
 		except Exception as e:
 			logger.error ( e )
+			exit()
 			
-		'''
-			SI QUEREMOS ELIMINAR UN USUARIO:
-		'''
+
 		for u in content:
 			login = u.replace('\n','')
 
-			try:
-				usr =  ListaUsrs.borrarUsuario ( login )
-				logger.info('Se ha eliminado el usuario %s'%usr['cn'])
+			#Posicion cero de resultado 0 1 indicando exito de la operacion, posicion 1 descripcion del error, si lo hubo:
+			resultado = ListaUsrs.borrarUsuario ( login )
+			if not resultado [0]:
+				logger.info('No se ha podido eliminar el usuario %s: %s'% (login, resultado[1] ))
 
-			except Exception as e:
-				logger.info( 'Usuario %s no encontrado' % (login))
-				logger.error ( e )
+			else:
+				logger.info('Se ha eliminado el usuario %s'% login)
+
+
 
 
 
