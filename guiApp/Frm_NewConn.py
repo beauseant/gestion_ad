@@ -14,19 +14,18 @@ import wx
 class Frm_NewConn(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: Frm_NewConn.__init__
-        kwds["style"] = wx.DEFAULT_FRAME_STYLE
+        kwds["style"] = wx.CAPTION
         wx.Frame.__init__(self, *args, **kwds)
         self.label_12 = wx.StaticText(self, wx.ID_ANY, _("Connection Properties"))
         self.label_13 = wx.StaticText(self, wx.ID_ANY, _("Introduce your connection information"))
         self.label_14 = wx.StaticText(self, wx.ID_ANY, _("Server"))
         self.txt_server = wx.TextCtrl(self, wx.ID_ANY, "")
         self.label_15 = wx.StaticText(self, wx.ID_ANY, _("CN"))
-        self.text_ctrl_10 = wx.TextCtrl(self, wx.ID_ANY, "")
+        self.txt_CN = wx.TextCtrl(self, wx.ID_ANY, "")
         self.label_16 = wx.StaticText(self, wx.ID_ANY, _("Password"))
-        self.text_ctrl_11 = wx.TextCtrl(self, wx.ID_ANY, "")
+        self.txt_passwd = wx.TextCtrl(self, wx.ID_ANY, "")
         self.btn_ok = wx.Button(self, wx.ID_ANY, _("OK"))
         self.btn_cancel = wx.Button(self, wx.ID_ANY, _("Cancel"))
-        self.Frm_NewConn_statusbar = self.CreateStatusBar(1, 0)
 
         self.__set_properties()
         self.__do_layout()
@@ -37,6 +36,7 @@ class Frm_NewConn(wx.Frame):
         
         self.parent = kwds['parent']
 
+
     def __set_properties(self):
         # begin wxGlade: Frm_NewConn.__set_properties
         self.SetTitle(_("New connection"))
@@ -44,11 +44,6 @@ class Frm_NewConn(wx.Frame):
         self.label_13.SetFont(wx.Font(13, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
         self.btn_ok.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
         self.btn_cancel.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
-        self.Frm_NewConn_statusbar.SetStatusWidths([-1])
-        # statusbar fields
-        Frm_NewConn_statusbar_fields = [_("Frm_NewConn_statusbar")]
-        for i in range(len(Frm_NewConn_statusbar_fields)):
-            self.Frm_NewConn_statusbar.SetStatusText(Frm_NewConn_statusbar_fields[i], i)
         # end wxGlade
 
     def __do_layout(self):
@@ -62,9 +57,9 @@ class Frm_NewConn(wx.Frame):
         grid_sizer_5.Add(self.label_14, 0, wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.txt_server, 0, wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.label_15, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.text_ctrl_10, 0, wx.ADJUST_MINSIZE, 0)
+        grid_sizer_5.Add(self.txt_CN, 0, wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.label_16, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.text_ctrl_11, 0, wx.ADJUST_MINSIZE, 0)
+        grid_sizer_5.Add(self.txt_passwd, 0, wx.ADJUST_MINSIZE, 0)
         sizer_6.Add(grid_sizer_5, 3, wx.EXPAND, 0)
         grid_sizer_4.Add(self.btn_ok, 0, wx.ALIGN_RIGHT | wx.ADJUST_MINSIZE, 0)
         grid_sizer_4.Add(self.btn_cancel, 0, wx.ADJUST_MINSIZE, 0)
@@ -75,16 +70,32 @@ class Frm_NewConn(wx.Frame):
         self.Layout()
         # end wxGlade
 
+    #Cerramos la ventana sin hacer nada:
     def btn_cancel_Click(self, event):  # wxGlade: Frm_NewConn.<event_handler>
         self.MakeModal(False)
         self.Destroy()
         event.Skip()
     def btn_ok_Click(self, event):  # wxGlade: Frm_NewConn.<event_handler>
-        self.parent.__server =("patata")
-        self.parent.text_server.SetValue ( self.txt_server.GetValue ())
-        self.MakeModal(False)
-        self.Destroy()
-        event.Skip()
+        #Recopilamos toda la información introducida por el usuario, comprobamos que esta todo correcto e intentamos lanzar una conexion:
+        self.parent.__server    = self.txt_server.GetValue ()
+        self.parent.__CN        = self.txt_CN.GetValue ()
+        self.parent.__passwd    = self.txt_passwd.GetValue ()
+        
+        if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) ) :
+            dlg = wx.MessageDialog(self, message='Complete all, please', caption='error:',style=wx.ICON_ERROR )
+            result = dlg.ShowModal() 
+            dlg.Destroy() 
+        else:
+            #Devolvemos 0 o 1 en funcion de si hemos podido conectarnos                    
+            if ( self.parent.__connectToServer () ):
+                self.MakeModal(False)
+                self.Destroy()
+            else:
+                dlg = wx.MessageDialog(self, message='Connect error, check data', caption='error:',style=wx.ICON_ERROR )
+                result = dlg.ShowModal() 
+                dlg.Destroy() 
+
+
 
         
 # end of class Frm_NewConn

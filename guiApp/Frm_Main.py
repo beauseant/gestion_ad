@@ -12,21 +12,38 @@ import wx.grid
 # end wxGlade
 
 import Frm_NewConn
-
+import time
 
 class Frm_Main(wx.Frame):
     
-    _Frm_NewConn__server = ''
+    _Frm_NewConn__server    = ''
+    _Frm_NewConn__CN        = ''
+    _Frm_NewConn__passwd    = ''
+    
+    def _Frm_NewConn__connectToServer ( self, *args, **kwds ):
+        cad_conn =  'try connect %s  in %s ' % ( self._Frm_NewConn__CN, self._Frm_NewConn__server )              
+        initFrm_statusbar_fields = [_( cad_conn )]
+        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+            
+        time.sleep (3)
+        #Do a lot stuff
+        #connect server
+        #print users
+        cad_conn =  'connect to %s' % ( self._Frm_NewConn__server )
+        initFrm_statusbar_fields = [_( cad_conn )]
+        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+        return 1
+        
     
     def __init__(self, *args, **kwds):
         # begin wxGlade: Frm_Main.__init__
-        kwds["style"] = wx.CAPTION | wx.CLOSE_BOX | wx.MINIMIZE_BOX | wx.MAXIMIZE_BOX | wx.SYSTEM_MENU | wx.RESIZE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.CLIP_CHILDREN
+        kwds["style"] = wx.CAPTION | wx.SYSTEM_MENU | wx.RESIZE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.CLIP_CHILDREN
         wx.Frame.__init__(self, *args, **kwds)
         
         # Menu Bar
         self.Frm_Main_menubar = wx.MenuBar()
         self.File = wx.Menu()
-        self.opc_newcon = wx.MenuItem(self.File, wx.ID_ANY, _("New connection"), "", wx.ITEM_NORMAL)
+        self.opc_newcon = wx.MenuItem(self.File, wx.ID_ANY, _("New connection..."), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_newcon)
         self.File.AppendSeparator()
         self.opc_quit = wx.MenuItem(self.File, wx.ID_ANY, _("Quit"), "", wx.ITEM_NORMAL)
@@ -34,25 +51,32 @@ class Frm_Main(wx.Frame):
         self.Frm_Main_menubar.Append(self.File, _("File"))
         self.SetMenuBar(self.Frm_Main_menubar)
         # Menu Bar end
+        self.initFrm_statusbar = self.CreateStatusBar(1, 0)
         
         # Tool Bar
         self.Frm_Main_toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL | wx.TB_TEXT | wx.TB_HORZ_LAYOUT | wx.TB_HORZ_TEXT)
         self.SetToolBar(self.Frm_Main_toolbar)
         # Tool Bar end
-        self.btn_newConn = wx.Button(self, wx.ID_ANY, _("New connection"))
         self.Grd_ListaUsrs = wx.grid.Grid(self, wx.ID_ANY, size=(1, 1))
-        self.text_server = wx.TextCtrl(self, wx.ID_ANY, "")
 
         self.__set_properties()
         self.__do_layout()
 
-        self.Bind(wx.EVT_BUTTON, self.btn_newConn_Click, self.btn_newConn)
+        self.Bind(wx.EVT_MENU, self.opc_newcon_click, self.opc_newcon)
+        self.Bind(wx.EVT_MENU, self.opc_quit_click, self.opc_quit)
         # end wxGlade
+        
+        
 
     def __set_properties(self):
         # begin wxGlade: Frm_Main.__set_properties
         self.SetTitle(_("Active Directory Management"))
-        self.SetSize((771, 600))
+        self.SetSize((771, 773))
+        self.initFrm_statusbar.SetStatusWidths([-1])
+        # statusbar fields
+        initFrm_statusbar_fields = [_("initFrm_statusbar")]
+        for i in range(len(initFrm_statusbar_fields)):
+            self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[i], i)
         self.Frm_Main_toolbar.SetToolSeparation(5)
         self.Frm_Main_toolbar.Realize()
         self.Grd_ListaUsrs.CreateGrid(10, 4)
@@ -65,12 +89,14 @@ class Frm_Main(wx.Frame):
         self.Grd_ListaUsrs.SetForegroundColour(wx.Colour(49, 55, 57))
         # end wxGlade
 
+        initFrm_statusbar_fields = [_('ready...')]
+        for i in range(len(initFrm_statusbar_fields)):
+            self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[i], i)
+
     def __do_layout(self):
         # begin wxGlade: Frm_Main.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
-        sizer_1.Add(self.btn_newConn, 0, wx.SHAPED | wx.ADJUST_MINSIZE, 0)
         sizer_1.Add(self.Grd_ListaUsrs, 1, wx.EXPAND, 0)
-        sizer_1.Add(self.text_server, 0, wx.ADJUST_MINSIZE, 0)
         self.SetSizer(sizer_1)
         self.Layout()
         # end wxGlade
@@ -79,5 +105,30 @@ class Frm_Main(wx.Frame):
         nc = Frm_NewConn.Frm_NewConn(parent=self)
         nc.Show(True)
         nc.MakeModal(True)
+
+    def opc_newcon_click(self, event):  # wxGlade: Frm_Main.<event_handler>
+        nc = Frm_NewConn.Frm_NewConn(parent=self)
+        nc.Show(True)
+        nc.MakeModal(True)
+        
+        
+    def opc_quit_click(self, event):  # wxGlade: Frm_Main.<event_handler>
+        dlg = wx.MessageDialog(self, message='Do you want to quit?', caption='confirm',style=wx.YES_NO)
+        result = dlg.ShowModal() 
+        dlg.Destroy() 
+        if result == wx.ID_YES:
+            self.Destroy ()
+        
+        
+    def OnOpenFileDialogButton(self, event):  # wxGlade: Frm_Main.<event_handler>
+        filename = "" # Use filename as a flag
+        dlg = wx.FileDialog(self, message="Choose a file")
+        if dlg.ShowModal() == wx.ID_OK:
+            # get the new filename from the dialog
+            filename = dlg.GetPath()
+            dlg.Destroy() # best to do this sooner than later
+        if filename:
+            print filename
+        # use the file name
 
 # end of class Frm_Main
