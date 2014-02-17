@@ -8,6 +8,7 @@ import wx
 # end wxGlade
 
 # begin wxGlade: extracode
+
 # end wxGlade
 
 
@@ -16,16 +17,16 @@ class Frm_NewConn(wx.Frame):
         # begin wxGlade: Frm_NewConn.__init__
         kwds["style"] = wx.CAPTION
         wx.Frame.__init__(self, *args, **kwds)
-        self.label_12 = wx.StaticText(self, wx.ID_ANY, _("Connection Properties"))
-        self.label_13 = wx.StaticText(self, wx.ID_ANY, _("Introduce your connection information"))
-        self.label_14 = wx.StaticText(self, wx.ID_ANY, _("Server"))
-        self.txt_server = wx.TextCtrl(self, wx.ID_ANY, "")
-        self.label_15 = wx.StaticText(self, wx.ID_ANY, _("CN"))
-        self.txt_CN = wx.TextCtrl(self, wx.ID_ANY, "")
-        self.label_16 = wx.StaticText(self, wx.ID_ANY, _("Password"))
-        self.txt_passwd = wx.TextCtrl(self, wx.ID_ANY, "")
-        self.btn_ok = wx.Button(self, wx.ID_ANY, _("OK"))
-        self.btn_cancel = wx.Button(self, wx.ID_ANY, _("Cancel"))
+        self.label_12 = wx.StaticText(self, -1, _("Connection Properties"))
+        self.label_13 = wx.StaticText(self, -1, _("Introduce your connection information"))
+        self.label_14 = wx.StaticText(self, -1, _("Server"))
+        self.txt_server = wx.TextCtrl(self, -1, "")
+        self.label_15 = wx.StaticText(self, -1, _("CN"))
+        self.txt_CN = wx.TextCtrl(self, -1, "")
+        self.label_16 = wx.StaticText(self, -1, _("Password"))
+        self.txt_passwd = wx.TextCtrl(self, -1, "")
+        self.btn_ok = wx.Button(self, -1, _("OK"))
+        self.btn_cancel = wx.Button(self, -1, _("Cancel"))
 
         self.__set_properties()
         self.__do_layout()
@@ -40,8 +41,9 @@ class Frm_NewConn(wx.Frame):
     def __set_properties(self):
         # begin wxGlade: Frm_NewConn.__set_properties
         self.SetTitle(_("New connection"))
-        self.label_12.SetFont(wx.Font(18, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
-        self.label_13.SetFont(wx.Font(13, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
+        self.SetSize((450, 400))
+        self.label_12.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
+        self.label_13.SetFont(wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
         self.btn_ok.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
         self.btn_cancel.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
         # end wxGlade
@@ -52,8 +54,8 @@ class Frm_NewConn(wx.Frame):
         sizer_6 = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_4 = wx.GridSizer(4, 4, 10, 10)
         grid_sizer_5 = wx.GridSizer(5, 4, 20, 20)
-        sizer_6.Add(self.label_12, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ADJUST_MINSIZE, 0)
-        sizer_6.Add(self.label_13, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ADJUST_MINSIZE, 0)
+        sizer_6.Add(self.label_12, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ADJUST_MINSIZE, 0)
+        sizer_6.Add(self.label_13, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.label_14, 0, wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.txt_server, 0, wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.label_15, 0, wx.ADJUST_MINSIZE, 0)
@@ -61,13 +63,13 @@ class Frm_NewConn(wx.Frame):
         grid_sizer_5.Add(self.label_16, 0, wx.ADJUST_MINSIZE, 0)
         grid_sizer_5.Add(self.txt_passwd, 0, wx.ADJUST_MINSIZE, 0)
         sizer_6.Add(grid_sizer_5, 3, wx.EXPAND, 0)
-        grid_sizer_4.Add(self.btn_ok, 0, wx.ALIGN_RIGHT | wx.ADJUST_MINSIZE, 0)
+        grid_sizer_4.Add(self.btn_ok, 0, wx.ALIGN_RIGHT|wx.ADJUST_MINSIZE, 0)
         grid_sizer_4.Add(self.btn_cancel, 0, wx.ADJUST_MINSIZE, 0)
         sizer_6.Add(grid_sizer_4, 1, wx.EXPAND, 0)
         sizer_4.Add(sizer_6, 2, wx.EXPAND, 0)
         self.SetSizer(sizer_4)
-        sizer_4.Fit(self)
         self.Layout()
+        self.Centre()
         # end wxGlade
 
     #Cerramos la ventana sin hacer nada:
@@ -82,18 +84,18 @@ class Frm_NewConn(wx.Frame):
         self.parent.__passwd    = self.txt_passwd.GetValue ()
         
         if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) ) :
-            dlg = wx.MessageDialog(self, message='Complete all, please', caption='error:',style=wx.ICON_ERROR )
+            dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
             result = dlg.ShowModal() 
             dlg.Destroy() 
         else:
             #Devolvemos 0 o 1 en funcion de si hemos podido conectarnos                    
-            if ( self.parent.__connectToServer () ):
-                self.MakeModal(False)
-                self.Destroy()
-            else:
+            if ( self.parent.__connectToServer () == 0 ):
                 dlg = wx.MessageDialog(self, message='Connect error, check data', caption='error:',style=wx.ICON_ERROR )
                 result = dlg.ShowModal() 
-                dlg.Destroy() 
+                dlg.Destroy()
+            else:
+                self.MakeModal(False)
+                self.Destroy()
 
 
 

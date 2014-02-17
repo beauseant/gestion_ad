@@ -9,44 +9,73 @@ import wx.grid
 # end wxGlade
 
 # begin wxGlade: extracode
+
 # end wxGlade
 
 import Frm_NewConn
 import time
+import sys
+sys.path.append('..')
+
+import lib.gestionUsuarios as ad
 
 class Frm_Main(wx.Frame):
     
     _Frm_NewConn__server    = ''
     _Frm_NewConn__CN        = ''
     _Frm_NewConn__passwd    = ''
+    _ListaUsuarios 	    = {}
     
     def _Frm_NewConn__connectToServer ( self, *args, **kwds ):
         cad_conn =  'try connect %s  in %s ' % ( self._Frm_NewConn__CN, self._Frm_NewConn__server )              
         initFrm_statusbar_fields = [_( cad_conn )]
         self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
             
-        time.sleep (3)
+	ListaUsrs 	= ad.gestionUsuarios ( 'administrador@tsc.uc3m.es', self._Frm_NewConn__passwd , 'cn=Users,dc=tsc, dc=uc3m,dc=es', self._Frm_NewConn__server )
+	#print ListaUsrs[0]
         #Do a lot stuff
         #connect server
         #print users
-        cad_conn =  'connect to %s' % ( self._Frm_NewConn__server )
-        initFrm_statusbar_fields = [_( cad_conn )]
-        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
-        return 1
+	self._ListaUsuarios =  ListaUsrs.getAllUsers ()
+	if len ( self._ListaUsuarios) > 0:
+	        cad_conn =  'connect to %s' % ( self._Frm_NewConn__server )
+	        initFrm_statusbar_fields = [_( cad_conn )]
+	        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+		cont_user = 0
+		for k, v in self._ListaUsuarios.items():
+			self.Grd_ListaUsrs.InsertRows (cont_user, 1)
+			self.Grd_ListaUsrs.SetCellValue(cont_user,0,k)
+			cont_att = 1
+			print v
+			for att,value in v.items():
+				print v[att]
+				self.Grd_ListaUsrs.SetCellValue(cont_user,cont_att, str(v[att]))
+				cont_att = cont_att + 1
+			cont_user = cont_user + 1
+		self.Grd_ListaUsrs.AutoSize()
+		self.Grd_ListaUsrs.SetScrollLineX(500)
+		self.Grd_ListaUsrs.SetScrollLineY(500)
+		return 1
+	else:
+	        cad_conn =  'fail to %s' % ( self._Frm_NewConn__server )
+	        initFrm_statusbar_fields = [_( cad_conn )]
+	        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+
+	        return 0
         
     
     def __init__(self, *args, **kwds):
         # begin wxGlade: Frm_Main.__init__
-        kwds["style"] = wx.CAPTION | wx.SYSTEM_MENU | wx.RESIZE_BORDER | wx.FRAME_FLOAT_ON_PARENT | wx.CLIP_CHILDREN
+        kwds["style"] = wx.CAPTION|wx.CLOSE_BOX|wx.MINIMIZE_BOX|wx.MAXIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER|wx.FRAME_FLOAT_ON_PARENT|wx.CLIP_CHILDREN
         wx.Frame.__init__(self, *args, **kwds)
         
         # Menu Bar
         self.Frm_Main_menubar = wx.MenuBar()
         self.File = wx.Menu()
-        self.opc_newcon = wx.MenuItem(self.File, wx.ID_ANY, _("New connection..."), "", wx.ITEM_NORMAL)
+        self.opc_newcon = wx.MenuItem(self.File, wx.NewId(), _("New connection..."), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_newcon)
         self.File.AppendSeparator()
-        self.opc_quit = wx.MenuItem(self.File, wx.ID_ANY, _("Quit"), "", wx.ITEM_NORMAL)
+        self.opc_quit = wx.MenuItem(self.File, wx.NewId(), _("Quit"), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_quit)
         self.Frm_Main_menubar.Append(self.File, _("File"))
         self.SetMenuBar(self.Frm_Main_menubar)
@@ -54,10 +83,10 @@ class Frm_Main(wx.Frame):
         self.initFrm_statusbar = self.CreateStatusBar(1, 0)
         
         # Tool Bar
-        self.Frm_Main_toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL | wx.TB_TEXT | wx.TB_HORZ_LAYOUT | wx.TB_HORZ_TEXT)
+        self.Frm_Main_toolbar = wx.ToolBar(self, -1, style=wx.TB_HORIZONTAL|wx.TB_TEXT|wx.TB_HORZ_LAYOUT|wx.TB_HORZ_TEXT)
         self.SetToolBar(self.Frm_Main_toolbar)
         # Tool Bar end
-        self.Grd_ListaUsrs = wx.grid.Grid(self, wx.ID_ANY, size=(1, 1))
+        self.Grd_ListaUsrs = wx.grid.Grid(self, -1, size=(1, 1))
 
         self.__set_properties()
         self.__do_layout()
@@ -71,7 +100,7 @@ class Frm_Main(wx.Frame):
     def __set_properties(self):
         # begin wxGlade: Frm_Main.__set_properties
         self.SetTitle(_("Active Directory Management"))
-        self.SetSize((771, 773))
+        self.SetSize((1200, 773))
         self.initFrm_statusbar.SetStatusWidths([-1])
         # statusbar fields
         initFrm_statusbar_fields = [_("initFrm_statusbar")]
@@ -79,11 +108,14 @@ class Frm_Main(wx.Frame):
             self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[i], i)
         self.Frm_Main_toolbar.SetToolSeparation(5)
         self.Frm_Main_toolbar.Realize()
-        self.Grd_ListaUsrs.CreateGrid(10, 4)
-        self.Grd_ListaUsrs.SetColLabelValue(0, _("Name"))
-        self.Grd_ListaUsrs.SetColLabelValue(1, _("Surnname"))
-        self.Grd_ListaUsrs.SetColLabelValue(2, _("Date"))
-        self.Grd_ListaUsrs.SetColLabelValue(3, _("Patata"))
+        self.Grd_ListaUsrs.CreateGrid(1, 7)
+        self.Grd_ListaUsrs.SetColLabelValue(0, _("Login"))
+        self.Grd_ListaUsrs.SetColLabelValue(1, _("Last Access"))
+        self.Grd_ListaUsrs.SetColLabelValue(2, _("Expiry Date"))
+        self.Grd_ListaUsrs.SetColLabelValue(3, _("CN"))
+        self.Grd_ListaUsrs.SetColLabelValue(4, _("Days from Last Access"))
+        self.Grd_ListaUsrs.SetColLabelValue(5, _("Days to Expire"))
+        self.Grd_ListaUsrs.SetColLabelValue(6, "")
         self.Grd_ListaUsrs.SetMinSize((600,400))
         self.Grd_ListaUsrs.SetBackgroundColour(wx.Colour(159, 159, 95))
         self.Grd_ListaUsrs.SetForegroundColour(wx.Colour(49, 55, 57))
@@ -96,9 +128,10 @@ class Frm_Main(wx.Frame):
     def __do_layout(self):
         # begin wxGlade: Frm_Main.__do_layout
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
-        sizer_1.Add(self.Grd_ListaUsrs, 1, wx.EXPAND, 0)
+        sizer_1.Add(self.Grd_ListaUsrs, 1, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 0)
         self.SetSizer(sizer_1)
         self.Layout()
+        self.Centre()
         # end wxGlade
 
     def btn_newConn_Click(self, event):  # wxGlade: Frm_Main.<event_handler>

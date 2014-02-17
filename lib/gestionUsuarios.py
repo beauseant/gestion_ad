@@ -171,6 +171,9 @@ class gestionUsuarios:
 	def __del__ ( self ):
 			self.__ldap_con.unbind ()
 
+	def getAllUsers ( self ):
+		return self.__usuarios 
+
 
 class bcolors:
     HEADER = '\033[95m'
