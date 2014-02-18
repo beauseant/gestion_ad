@@ -9,7 +9,7 @@ import time
 
 class DataBase:
 
-	_name	= 'docs.db'
+	_name	= 'sqlite.db'
 	_con	= None
 	_dir	= ''
 	
@@ -19,9 +19,6 @@ class DataBase:
 
 		try:
 		    self._con = lite.connect( self._name )
-
-		    #Base de datos solo en memoria, no se guarda nada el terminar:
-		    #self._con = lite.connect( :memory )
 		    
 		    cur = self._con.cursor()    
 		    cur.execute('SELECT SQLITE_VERSION()')
@@ -42,54 +39,24 @@ class DataBase:
 			self._con.close()
 
 
-	def cargarDatos ( self ):
-
-
-		totales = []
-
-
-		for base, dirs, files in os.walk( self._dir):
-			logging.debug ( 'Cargando %s' % ( base ) )
-			for fich in files:
-				with self._con:    
-					cur = self._con.cursor()
-					with open(base + '/' + fich) as f:
-						data = f.read()
-						totales.append  ((fich, unicode (data, "utf-8")) )
-
-		#Grabamos las cosas en una tabla de tipo fts4 que se supone se encuentra optimizida para buscar textos en ella:
+	def createConnectionsTable ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
-			cur.execute("DROP TABLE IF EXISTS Documentos_fts4")
-			cur.execute("CREATE VIRTUAL TABLE Documentos_fts4 USING fts4 (Name TEXT, Contenido TEXT)")
-			cur = self._con.cursor()
-			cur.executemany ("INSERT INTO Documentos_fts4 (Name, Contenido) VALUES (?,?)", totales  )
-			self._con.commit()
+			cur.execute("DROP TABLE IF EXISTS connections")
+			cur.execute("CREATE TABLE connections  (server TEXT, cn TEXT, user TEXT)")
 
-		#Grabamos las cosas en una tabla normal que deberia dar unos resultados netamente inferiores a una tabla fts4 al buscar textos:
+
+	def saveConnectionConfiguration ( self , server, cn, user):
 		with self._con:    
-			cur = self._con.cursor()    
-			cur.execute("DROP TABLE IF EXISTS Documentos")
-			cur.execute("CREATE TABLE Documentos  (Name TEXT, Contenido TEXT)")
 			cur = self._con.cursor()
-			cur.executemany ("INSERT INTO Documentos (Name, Contenido) VALUES (?,?)", totales  )
+			cur.executemany ("INSERT INTO connections (server, cn, user) VALUES (?,?,?)", server, cn, user  )
 			self._con.commit()
 
 
-
-	def _lanzarConsulta ( self, consulta ):
+	def recoverConnectionConfigurations ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
-			cur.execute( consulta )
+			cur.execute( "SELECT * FROM connections")
 			rows = cur.fetchall()
 			return rows
 
-
-	def buscarPalabra ( self, palabra,fts4 = 0 ):
-
-		#¿Queremos hacer la busqueda en la tabla fts4 o en una tabla normal?
-
-		if not (fts4):
-			return self._lanzarConsulta ( "SELECT rowid, Name FROM " + 'Documentos' + " WHERE Contenido LIKE '%" + palabra + "%'" )
-		else:
-			return self._lanzarConsulta ( "SELECT rowid, Name FROM " + 'Documentos_fts4' + " WHERE Contenido MATCH '" + palabra + "'" )

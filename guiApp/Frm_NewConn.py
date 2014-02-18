@@ -4,6 +4,11 @@
 #
 
 import wx
+import sys
+sys.path.append('..')
+
+import lib.db as db
+
 # begin wxGlade: dependencies
 # end wxGlade
 
@@ -15,15 +20,20 @@ import wx
 class Frm_NewConn(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: Frm_NewConn.__init__
-        kwds["style"] = wx.CAPTION
+        kwds["style"] = wx.DEFAULT_FRAME_STYLE
         wx.Frame.__init__(self, *args, **kwds)
-        self.label_12 = wx.StaticText(self, -1, _("Connection Properties"))
-        self.label_13 = wx.StaticText(self, -1, _("Introduce your connection information"))
-        self.label_14 = wx.StaticText(self, -1, _("Server"))
+        self.connections_title_label = wx.StaticText(self, -1, _("Connections Properties"))
+        self.configurations_combo_label = wx.StaticText(self, -1, _("Saved configurations"))
+        self.configurations_combo = wx.ComboBox(self, -1, choices=[_("Configuration 1"), _("Configuration 2")], style=wx.CB_DROPDOWN)
+        self.new_configuration_label = wx.StaticText(self, -1, _("New configuration"))
+        self.inst_new_configuration_label = wx.StaticText(self, -1, _("Introduce the connection data"))
+        self.txt_server_label = wx.StaticText(self, -1, _("Server"))
         self.txt_server = wx.TextCtrl(self, -1, "")
-        self.label_15 = wx.StaticText(self, -1, _("CN"))
+        self.txt_CN_label = wx.StaticText(self, -1, _("CN"))
         self.txt_CN = wx.TextCtrl(self, -1, "")
-        self.label_16 = wx.StaticText(self, -1, _("Password"))
+        self.txt_name_label = wx.StaticText(self, -1, _("Name"))
+        self.text_name = wx.TextCtrl(self, -1, "")
+        self.txt_passwd_label = wx.StaticText(self, -1, _("Password"))
         self.txt_passwd = wx.TextCtrl(self, -1, "")
         self.btn_ok = wx.Button(self, -1, _("OK"))
         self.btn_cancel = wx.Button(self, -1, _("Cancel"))
@@ -40,34 +50,46 @@ class Frm_NewConn(wx.Frame):
 
     def __set_properties(self):
         # begin wxGlade: Frm_NewConn.__set_properties
-        self.SetTitle(_("New connection"))
-        self.SetSize((450, 400))
-        self.label_12.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
-        self.label_13.SetFont(wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
-        self.btn_ok.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
-        self.btn_cancel.SetFont(wx.Font(12, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, "Cantarell"))
+        self.SetTitle(_("frame_2"))
+        self.connections_title_label.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
+        self.configurations_combo_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+        self.configurations_combo.SetSelection(-1)
+        self.new_configuration_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+        self.inst_new_configuration_label.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
         # end wxGlade
 
     def __do_layout(self):
         # begin wxGlade: Frm_NewConn.__do_layout
-        sizer_4 = wx.BoxSizer(wx.VERTICAL)
-        sizer_6 = wx.BoxSizer(wx.VERTICAL)
-        grid_sizer_4 = wx.GridSizer(4, 4, 10, 10)
-        grid_sizer_5 = wx.GridSizer(5, 4, 20, 20)
-        sizer_6.Add(self.label_12, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ADJUST_MINSIZE, 0)
-        sizer_6.Add(self.label_13, 0, wx.ALIGN_CENTER_HORIZONTAL|wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.label_14, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.txt_server, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.label_15, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.txt_CN, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.label_16, 0, wx.ADJUST_MINSIZE, 0)
-        grid_sizer_5.Add(self.txt_passwd, 0, wx.ADJUST_MINSIZE, 0)
-        sizer_6.Add(grid_sizer_5, 3, wx.EXPAND, 0)
-        grid_sizer_4.Add(self.btn_ok, 0, wx.ALIGN_RIGHT|wx.ADJUST_MINSIZE, 0)
-        grid_sizer_4.Add(self.btn_cancel, 0, wx.ADJUST_MINSIZE, 0)
-        sizer_6.Add(grid_sizer_4, 1, wx.EXPAND, 0)
-        sizer_4.Add(sizer_6, 2, wx.EXPAND, 0)
-        self.SetSizer(sizer_4)
+        sizer_7 = wx.BoxSizer(wx.VERTICAL)
+        sizer_8 = wx.BoxSizer(wx.VERTICAL)
+        sizer_9 = wx.BoxSizer(wx.HORIZONTAL)
+        grid_sizer_2 = wx.FlexGridSizer(6, 2, 0, 0)
+        sizer_8.Add(self.connections_title_label, 0, wx.TOP|wx.ALIGN_CENTER_HORIZONTAL|wx.ADJUST_MINSIZE, 15)
+        grid_sizer_2.Add(self.configurations_combo_label, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.configurations_combo, 0, wx.ALL|wx.EXPAND|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.new_configuration_label, 0, wx.LEFT|wx.TOP|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.inst_new_configuration_label, 0, wx.LEFT|wx.TOP|wx.ADJUST_MINSIZE, 13)
+        grid_sizer_2.Add(self.txt_server_label, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.txt_server, 0, wx.ALL|wx.EXPAND|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.txt_CN_label, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.txt_CN, 0, wx.ALL|wx.EXPAND|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.txt_name_label, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.text_name, 0, wx.ALL|wx.EXPAND|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.Add(self.txt_passwd_label, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL, 15)
+        grid_sizer_2.Add(self.txt_passwd, 0, wx.ALL|wx.EXPAND|wx.ADJUST_MINSIZE, 10)
+        grid_sizer_2.AddGrowableRow(0)
+        grid_sizer_2.AddGrowableRow(2)
+        grid_sizer_2.AddGrowableRow(3)
+        grid_sizer_2.AddGrowableRow(4)
+        grid_sizer_2.AddGrowableRow(5)
+        grid_sizer_2.AddGrowableCol(1)
+        sizer_8.Add(grid_sizer_2, 1, wx.ALL|wx.EXPAND, 20)
+        sizer_9.Add(self.btn_ok, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 120)
+        sizer_9.Add(self.btn_cancel, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 80)
+        sizer_8.Add(sizer_9, 0, wx.ALL|wx.ADJUST_MINSIZE, 15)
+        sizer_7.Add(sizer_8, 1, wx.ALL|wx.EXPAND, 20)
+        self.SetSizer(sizer_7)
+        sizer_7.Fit(self)
         self.Layout()
         self.Centre()
         # end wxGlade
@@ -87,13 +109,14 @@ class Frm_NewConn(wx.Frame):
             dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
             result = dlg.ShowModal() 
             dlg.Destroy() 
-        else:
-            #Devolvemos 0 o 1 en funcion de si hemos podido conectarnos                    
+        else:                   
             if ( self.parent.__connectToServer () == 0 ):
                 dlg = wx.MessageDialog(self, message='Connect error, check data', caption='error:',style=wx.ICON_ERROR )
                 result = dlg.ShowModal() 
                 dlg.Destroy()
             else:
+		gdb = db.db('./')
+		gdb = db.saveConnectionConfiguration ( self.parent.__server , self.parent.__CN, self.parent.__passwd)
                 self.MakeModal(False)
                 self.Destroy()
 
