@@ -62,6 +62,43 @@ class Frm_Main(wx.Frame):
 	        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
 
 	        return 0
+
+	def _Frm_Conn2__connectToServer ( self, *args, **kwds ):
+		cad_conn =  'try connect %s  in %s ' % ( self._Frm_Conn2__CN, self._Frm_Conn2__server )              
+		initFrm_statusbar_fields = [_( cad_conn )]
+		self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+		    
+		ListaUsrs 	= ad.gestionUsuarios ( 'administrador@tsc.uc3m.es', self._Frm_Conn2__passwd , 'cn=Users,dc=tsc, dc=uc3m,dc=es', self._Frm_Conn2__server )
+		#print ListaUsrs[0]
+		#Do a lot stuff
+		#connect server
+		#print users
+		self._ListaUsuarios =  ListaUsrs.getAllUsers ()
+		if len ( self._ListaUsuarios) > 0:
+			cad_conn =  'connect to %s' % ( self._Frm_Conn2__server )
+			initFrm_statusbar_fields = [_( cad_conn )]
+			self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+			cont_user = 0
+			for k, v in self._ListaUsuarios.items():
+				self.Grd_ListaUsrs.InsertRows (cont_user, 1)
+				self.Grd_ListaUsrs.SetCellValue(cont_user,0,k)
+				cont_att = 1
+				print v
+				for att,value in v.items():
+					print v[att]
+					self.Grd_ListaUsrs.SetCellValue(cont_user,cont_att, str(v[att]))
+					cont_att = cont_att + 1
+				cont_user = cont_user + 1
+			self.Grd_ListaUsrs.AutoSize()
+			self.Grd_ListaUsrs.SetScrollLineX(500)
+			self.Grd_ListaUsrs.SetScrollLineY(500)
+			return 1
+		else:
+			cad_conn =  'fail to %s' % ( self._Frm_Conn2__server )
+			initFrm_statusbar_fields = [_( cad_conn )]
+			self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
+
+			return 0
         
     
     def __init__(self, *args, **kwds):
@@ -74,6 +111,8 @@ class Frm_Main(wx.Frame):
         self.File = wx.Menu()
         self.opc_newcon = wx.MenuItem(self.File, wx.NewId(), _("New connection..."), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_newcon)
+        self.opc_newcon2 = wx.MenuItem(self.File, wx.NewId(), _("New Connection2"), "", wx.ITEM_NORMAL)
+        self.File.AppendItem(self.opc_newcon2)
         self.File.AppendSeparator()
         self.opc_quit = wx.MenuItem(self.File, wx.NewId(), _("Quit"), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_quit)
@@ -92,6 +131,7 @@ class Frm_Main(wx.Frame):
         self.__do_layout()
 
         self.Bind(wx.EVT_MENU, self.opc_newcon_click, self.opc_newcon)
+        self.Bind(wx.EVT_MENU, self.opc_newcon_click2, self.opc_newcon2)
         self.Bind(wx.EVT_MENU, self.opc_quit_click, self.opc_quit)
         # end wxGlade
         
@@ -100,7 +140,7 @@ class Frm_Main(wx.Frame):
     def __set_properties(self):
         # begin wxGlade: Frm_Main.__set_properties
         self.SetTitle(_("Active Directory Management"))
-        self.SetSize((1200, 773))
+        self.SetSize((800, 600))
         self.initFrm_statusbar.SetStatusWidths([-1])
         # statusbar fields
         initFrm_statusbar_fields = [_("initFrm_statusbar")]
@@ -109,6 +149,7 @@ class Frm_Main(wx.Frame):
         self.Frm_Main_toolbar.SetToolSeparation(5)
         self.Frm_Main_toolbar.Realize()
         self.Grd_ListaUsrs.CreateGrid(1, 7)
+        self.Grd_ListaUsrs.EnableEditing(0)
         self.Grd_ListaUsrs.SetColLabelValue(0, _("Login"))
         self.Grd_ListaUsrs.SetColLabelValue(1, _("Last Access"))
         self.Grd_ListaUsrs.SetColLabelValue(2, _("Expiry Date"))
@@ -139,8 +180,18 @@ class Frm_Main(wx.Frame):
         nc.Show(True)
         nc.MakeModal(True)
 
+    def btn_newConn_Click2(self, event):  # wxGlade: Frm_Main.<event_handler>
+        nc = Frm_Conn2.Frm_Conn2(parent=self)
+        nc.Show(True)
+        nc.MakeModal(True)
+
     def opc_newcon_click(self, event):  # wxGlade: Frm_Main.<event_handler>
         nc = Frm_NewConn.Frm_NewConn(parent=self)
+        nc.Show(True)
+        nc.MakeModal(True)
+
+    def opc_newcon_click2(self, event):  # wxGlade: Frm_Main.<event_handler>
+        nc = Frm_Conn2.Frm_Conn2(parent=self)
         nc.Show(True)
         nc.MakeModal(True)
         

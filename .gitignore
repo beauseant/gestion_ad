@@ -2,3 +2,6 @@
 *~
 tsc_*
 *.pyc
+*.db
+*.sqlite
+
