@@ -35,12 +35,15 @@ class Frm_NewConn(wx.Frame):
         self.text_name = wx.TextCtrl(self, -1, "")
         self.txt_passwd_label = wx.StaticText(self, -1, _("Password"))
         self.txt_passwd = wx.TextCtrl(self, -1, "")
+        self.btn_save = wx.Button(self, -1, _("Save configuration"))
         self.btn_ok = wx.Button(self, -1, _("OK"))
         self.btn_cancel = wx.Button(self, -1, _("Cancel"))
 
         self.__set_properties()
         self.__do_layout()
 
+        self.Bind(wx.EVT_COMBOBOX, self.cmbox_Click, self.configurations_combo)
+        self.Bind(wx.EVT_BUTTON, self.btn_save_Click, self.btn_save)
         self.Bind(wx.EVT_BUTTON, self.btn_ok_Click, self.btn_ok)
         self.Bind(wx.EVT_BUTTON, self.btn_cancel_Click, self.btn_cancel)
         # end wxGlade
@@ -84,7 +87,8 @@ class Frm_NewConn(wx.Frame):
         grid_sizer_2.AddGrowableRow(5)
         grid_sizer_2.AddGrowableCol(1)
         sizer_8.Add(grid_sizer_2, 1, wx.ALL|wx.EXPAND, 20)
-        sizer_9.Add(self.btn_ok, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 120)
+        sizer_9.Add(self.btn_save, 0, wx.ADJUST_MINSIZE, 0)
+        sizer_9.Add(self.btn_ok, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 100)
         sizer_9.Add(self.btn_cancel, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 80)
         sizer_8.Add(sizer_9, 0, wx.ALL|wx.ADJUST_MINSIZE, 15)
         sizer_7.Add(sizer_8, 1, wx.ALL|wx.EXPAND, 20)
@@ -103,9 +107,10 @@ class Frm_NewConn(wx.Frame):
         #Recopilamos toda la información introducida por el usuario, comprobamos que esta todo correcto e intentamos lanzar una conexion:
         self.parent.__server    = self.txt_server.GetValue ()
         self.parent.__CN        = self.txt_CN.GetValue ()
+	self.parent.__user	= self.text_name.GetValue()
         self.parent.__passwd    = self.txt_passwd.GetValue ()
         
-        if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) ) :
+        if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) or ( not self.parent.__user )) :
             dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
             result = dlg.ShowModal() 
             dlg.Destroy() 
@@ -115,12 +120,42 @@ class Frm_NewConn(wx.Frame):
                 result = dlg.ShowModal() 
                 dlg.Destroy()
             else:
-		gdb = db.db('./')
-		gdb = db.saveConnectionConfiguration ( self.parent.__server , self.parent.__CN, self.parent.__passwd)
                 self.MakeModal(False)
                 self.Destroy()
 
 
+    def cmbox_Click(self, event): # wxGlade: Frm_NewConn.<event_handler>
+	self.parent.__confname	= self.configurations_combo.GetValue()           
+	gdb = db.Database('./')
+	configuration = gdb.recoverConnectionConfiguration(self.parent.__confname)
 
+	print configuration
+
+	self.parent.__server    = configuration[1]
+        self.parent.__CN        = configuration[2]
+	self.parent.__user	= configuration[3]
+	self.parent.__confname	= configuration[0]
+
+
+    def btn_save_Click(self, event): # wxGlade: Frm_NewConn.<event_handler>
+
+	self.parent.__server    = self.txt_server.GetValue ()
+        self.parent.__CN        = self.txt_CN.GetValue ()
+	self.parent.__user	= self.text_name.GetValue()
+        self.parent.__passwd    = self.txt_passwd.GetValue ()
+	self.parent.__confname	= self.configurations_combo.GetValue()
         
+        if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) or ( not self.parent.__user ) or ( not self.parent.__confname )) :
+            dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
+            result = dlg.ShowModal() 
+            dlg.Destroy() 
+        else:                   
+		gdb = db.Database('./')
+		gdb.createConnectionsTable()
+		gdb.saveConnectionConfiguration ( self.parent.__confname, self.parent.__server , self.parent.__CN, self.parent.__user)
+		configurations = gdb.recoverConnectionConfigurations()
+		dlg = wx.MessageDialog(self, message='Configuration saved.', caption='Succesful operation', style=wx.ICON_INFORMATION)
+		result = dlg.ShowModal() 
+            	dlg.Destroy() 
+
 # end of class Frm_NewConn

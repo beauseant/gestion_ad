@@ -7,9 +7,9 @@ import logging
 import argparse
 import time
 
-class Database:
+class DataBase:
 
-	_name	='sqlite.db'
+	_name	= 'sqlite.db'
 	_con	= None
 	_dir	= ''
 	
@@ -43,20 +43,20 @@ class Database:
 		with self._con:    
 			cur = self._con.cursor()    
 			cur.execute("DROP TABLE IF EXISTS connections")
-			cur.execute("CREATE TABLE connections  (name TEXT, server TEXT, cn TEXT, user TEXT)")
+			cur.execute("CREATE TABLE connections  (server TEXT, cn TEXT, user TEXT)")
 
 
-	def saveConnectionConfiguration ( self , name, server, cn, user):
+	def saveConnectionConfiguration ( self , server, cn, user):
 		with self._con:    
 			cur = self._con.cursor()
-			cur.execute ("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)",(name, server, cn, user) )
+			cur.executemany ("INSERT INTO connections (server, cn, user) VALUES (?,?,?)", server, cn, user  )
 			self._con.commit()
 
 
-	def recoverConnectionConfiguration ( self, name ):
+	def recoverConnectionConfigurations ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
-			cur.execute( "SELECT * FROM connections WHERE name=?",(name))
+			cur.execute( "SELECT * FROM connections")
 			rows = cur.fetchall()
 			return rows
 
