@@ -18,13 +18,16 @@ import sys
 sys.path.append('..')
 
 import lib.gestionUsuarios as ad
+import lib.db as db_c
 
 class Frm_Main(wx.Frame):
     
     _Frm_NewConn__server    = ''
     _Frm_NewConn__CN        = ''
     _Frm_NewConn__passwd    = ''
-    _ListaUsuarios 	    = {}
+    _ListaUsuarios 	        = {}
+    _gdb                    = ''
+    
     
     def _Frm_NewConn__connectToServer ( self, *args, **kwds ):
         cad_conn =  'try connect %s  in %s ' % ( self._Frm_NewConn__CN, self._Frm_NewConn__server )              
@@ -79,6 +82,8 @@ class Frm_Main(wx.Frame):
 			initFrm_statusbar_fields = [_( cad_conn )]
 			self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
 			cont_user = 0
+            
+            
 			for k, v in self._ListaUsuarios.items():
 				self.Grd_ListaUsrs.InsertRows (cont_user, 1)
 				self.Grd_ListaUsrs.SetCellValue(cont_user,0,k)
@@ -135,6 +140,7 @@ class Frm_Main(wx.Frame):
         self.Bind(wx.EVT_MENU, self.opc_quit_click, self.opc_quit)
         # end wxGlade
         self.Bind(wx.EVT_CLOSE, self.opc_quit_click)
+        self._gdb = db_c.db ('./')
         
         
 

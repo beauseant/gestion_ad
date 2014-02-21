@@ -25,7 +25,8 @@ class db:
 		    
 		    data = cur.fetchone()
 		    
-		    print "SQLite version: %s" % data                
+		    self.createCacheTable ()  
+             
 		    
 		except lite.Error, e:
 		    
@@ -57,4 +58,19 @@ class db:
 			cur.execute( "SELECT * FROM connections")
 			rows = cur.fetchall()
 			return rows
+		
+		
+		
+		
+	def createCacheTable (self ):
+		with self._con:    
+			cur = self._con.cursor()
+			cur.execute("DROP TABLE IF EXISTS cache")
+			cur.execute( 'CREATE TABLE cache  (login VARCHAR(40), lastLogon,  accountExpires,' \
+						'sAMAccountName TEXT)')
+			self._con.commit()
+			
+			
+		
+		
 
