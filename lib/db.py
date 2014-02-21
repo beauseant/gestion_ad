@@ -25,7 +25,6 @@ class db:
 		    
 		    data = cur.fetchone()
 		    
-		    print "SQLite version: %s" % data                
 		    
 		except lite.Error, e:
 		    
@@ -41,8 +40,8 @@ class db:
 	def createConnectionsTable ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
-			cur.execute("DROP TABLE IF EXISTS connections")
-			cur.execute("CREATE TABLE connections  (name TEXT, server TEXT, cn TEXT, user TEXT)")
+			#cur.execute("DROP TABLE IF EXISTS connections")
+			cur.execute("CREATE TABLE if not exists  connections  (name TEXT, server TEXT, cn TEXT, user TEXT)")
 
 
 	def saveConnectionConfiguration ( self , name, server, cn, user):
