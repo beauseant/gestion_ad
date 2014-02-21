@@ -7,6 +7,8 @@ import logging
 import argparse
 import time
 
+
+
 class db:
 
 	_name	= 'sqlite.db'
