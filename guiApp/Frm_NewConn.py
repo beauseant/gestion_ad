@@ -25,12 +25,16 @@ import lib.db as db_c
 
 class Frm_NewConn(wx.Frame):
     def __init__(self, *args, **kwds):
+
+	self._gdb = ''
+	
+
         # begin wxGlade: Frm_NewConn.__init__
         kwds["style"] = wx.TAB_TRAVERSAL
         wx.Frame.__init__(self, *args, **kwds)
         self.connections_title_label = wx.StaticText(self, -1, _("Connections Properties"))
         self.configurations_combo_label = wx.StaticText(self, -1, _("Saved configurations"))
-        self.configurations_combo = wx.ComboBox(self, -1, choices=[_("Configuration 1"), _("Configuration 2")], style=wx.CB_DROPDOWN)
+        self.configurations_combo = wx.ComboBox(self, -1, choices=[], style=wx.CB_DROPDOWN)
         self.new_configuration_label = wx.StaticText(self, -1, _("New configuration"))
         self.inst_new_configuration_label = wx.StaticText(self, -1, _("Introduce the connection data"))
         self.txt_server_label = wx.StaticText(self, -1, _("Server"))
@@ -54,7 +58,15 @@ class Frm_NewConn(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.btn_cancel_Click, self.btn_cancel)
         # end wxGlade
         
+        self._gdb = db_c.db ('./')
         self.parent = kwds['parent']
+
+	#Cargamos configuraciones de la base de datos:
+	self.loadComboBox ()
+	#Seleccionamos la primera:
+	self.configurations_combo.SetSelection ( 0 )
+	#Y actualizamos valores de las etiquetas:
+	self.cmbox_Click ('')
 
 
     def __set_properties(self):
@@ -63,7 +75,6 @@ class Frm_NewConn(wx.Frame):
         self.connections_title_label.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
         self.configurations_combo_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.configurations_combo.SetFocus()
-        self.configurations_combo.SetSelection(-1)
         self.new_configuration_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.inst_new_configuration_label.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
         # end wxGlade
@@ -133,16 +144,12 @@ class Frm_NewConn(wx.Frame):
 
     def cmbox_Click(self, event): # wxGlade: Frm_NewConn.<event_handler>
 	self.parent.__confname	= self.configurations_combo.GetValue()           
-	gdb = db.Database('./')
-	configuration = gdb.recoverConnectionConfiguration(self.parent.__confname)
 
-	print configuration
+	configuration = self._gdb.recoverConnectionConfiguration(self.parent.__confname)
 
-	self.parent.__server    = configuration[1]
-        self.parent.__CN        = configuration[2]
-	self.parent.__user	= configuration[3]
-	self.parent.__confname	= configuration[0]
-
+	self.txt_server.SetValue(configuration[1])
+        self.txt_CN.SetValue(configuration[2])
+        self.text_name.SetValue(configuration[3])
 
 
     def btn_save_Click(self, event): # wxGlade: Frm_NewConn.<event_handler>
@@ -152,17 +159,31 @@ class Frm_NewConn(wx.Frame):
         self.parent.__user      = self.text_name.GetValue()
         self.parent.__passwd    = self.txt_passwd.GetValue ()
         self.parent.__confname  = self.configurations_combo.GetValue()
-        
+
+
         if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) or ( not self.parent.__user ) or ( not self.parent.__confname )) :
             dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
             result = dlg.ShowModal() 
             dlg.Destroy() 
         else:                   
-            gdb = db_c.db ('./')
-            gdb.createConnectionsTable()
-            gdb.saveConnectionConfiguration ( self.parent.__confname, self.parent.__server , self.parent.__CN, self.parent.__user)
-            configurations = gdb.recoverConnectionConfigurations()
+            self._gdb.createConnectionsTable()
+            self._gdb.saveConnectionConfiguration ( self.parent.__confname, self.parent.__server , self.parent.__CN, self.parent.__user)
+	    self.configurations_combo.Append ( self.parent.__confname )
             dlg = wx.MessageDialog(self, message='Configuration saved.', caption='Succesful operation', style=wx.ICON_INFORMATION)
             result = dlg.ShowModal() 
             dlg.Destroy()
+
+
+    def loadComboBox ( self ): # wxGlade: Frm_NewConn.<event_handler>
+	configurations = self._gdb.recoverAllConfigurations()
+
+	confs=[]
+	for c in configurations:
+		confs.append (str(c[0]))
+		self.configurations_combo.Append ( c[0] )
+
+	#return confs
+	
+	#self.configurations_combo = wx.ComboBox(self, -1, choices=confs, style=wx.CB_DROPDOWN)
+
 # end of class Frm_NewConn

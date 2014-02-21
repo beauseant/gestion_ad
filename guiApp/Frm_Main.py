@@ -16,7 +16,7 @@ import Frm_NewConn
 import time
 import sys
 sys.path.append('..')
-
+import lib.db as db_c
 import lib.gestionUsuarios as ad
 import lib.db as db_c
 
@@ -139,8 +139,15 @@ class Frm_Main(wx.Frame):
         self.Bind(wx.EVT_MENU, self.opc_newcon_click2, self.opc_newcon2)
         self.Bind(wx.EVT_MENU, self.opc_quit_click, self.opc_quit)
         # end wxGlade
+
         self.Bind(wx.EVT_CLOSE, self.opc_quit_click)
+
         self._gdb = db_c.db ('./')
+
+
+ 	gdb = db_c.db ('./')
+        gdb.createConnectionsTable()
+
         
         
 
