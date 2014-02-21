@@ -48,10 +48,17 @@ class db:
 	def saveConnectionConfiguration ( self , name, server, cn, user):
 		with self._con:    
 			cur = self._con.cursor()
-			cur.executemany ("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)", name, server, cn, user  )
+			cur.execute("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)", (name, server, cn, user)  )
 			self._con.commit()
 
-	def recoverConnectionConfigurations ( self ):
+	def recoverConnectionConfiguration ( self, name ):
+		with self._con:    
+			cur = self._con.cursor()    
+			cur.execute( "SELECT * FROM connections WHERE name=?", (name,))
+			rows = cur.fetchone()
+			return rows
+
+	def recoverAllConfigurations ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
 			cur.execute( "SELECT * FROM connections")
