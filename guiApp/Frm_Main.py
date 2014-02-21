@@ -109,12 +109,12 @@ class Frm_Main(wx.Frame):
         # Menu Bar
         self.Frm_Main_menubar = wx.MenuBar()
         self.File = wx.Menu()
-        self.opc_newcon = wx.MenuItem(self.File, wx.NewId(), _("New connection..."), "", wx.ITEM_NORMAL)
+        self.opc_newcon = wx.MenuItem(self.File, wx.NewId(), _("&New connection...\tCtrl+N"), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_newcon)
         self.opc_newcon2 = wx.MenuItem(self.File, wx.NewId(), _("New Connection2"), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_newcon2)
         self.File.AppendSeparator()
-        self.opc_quit = wx.MenuItem(self.File, wx.NewId(), _("Quit"), "", wx.ITEM_NORMAL)
+        self.opc_quit = wx.MenuItem(self.File, wx.NewId(), _("&Quit\tCtrl+Q"), "", wx.ITEM_NORMAL)
         self.File.AppendItem(self.opc_quit)
         self.Frm_Main_menubar.Append(self.File, _("File"))
         self.SetMenuBar(self.Frm_Main_menubar)
@@ -134,6 +134,7 @@ class Frm_Main(wx.Frame):
         self.Bind(wx.EVT_MENU, self.opc_newcon_click2, self.opc_newcon2)
         self.Bind(wx.EVT_MENU, self.opc_quit_click, self.opc_quit)
         # end wxGlade
+        self.Bind(wx.EVT_CLOSE, self.opc_quit_click)
         
         
 
@@ -202,7 +203,8 @@ class Frm_Main(wx.Frame):
         dlg.Destroy() 
         if result == wx.ID_YES:
             self.Destroy ()
-        
+
+
         
     def OnOpenFileDialogButton(self, event):  # wxGlade: Frm_Main.<event_handler>
         filename = "" # Use filename as a flag

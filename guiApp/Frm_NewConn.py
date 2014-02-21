@@ -5,9 +5,10 @@
 
 import wx
 import sys
-sys.path.append('..')
 
-import lib.db as db
+sys.path.append('..')
+import lib.gestionUsuarios as ad
+import lib.db as db_c
 
 # begin wxGlade: dependencies
 # end wxGlade
@@ -17,10 +18,15 @@ import lib.db as db
 # end wxGlade
 
 
+
+
+
+
+
 class Frm_NewConn(wx.Frame):
     def __init__(self, *args, **kwds):
         # begin wxGlade: Frm_NewConn.__init__
-        kwds["style"] = wx.DEFAULT_FRAME_STYLE
+        kwds["style"] = wx.TAB_TRAVERSAL
         wx.Frame.__init__(self, *args, **kwds)
         self.connections_title_label = wx.StaticText(self, -1, _("Connections Properties"))
         self.configurations_combo_label = wx.StaticText(self, -1, _("Saved configurations"))
@@ -34,7 +40,7 @@ class Frm_NewConn(wx.Frame):
         self.txt_name_label = wx.StaticText(self, -1, _("Name"))
         self.text_name = wx.TextCtrl(self, -1, "")
         self.txt_passwd_label = wx.StaticText(self, -1, _("Password"))
-        self.txt_passwd = wx.TextCtrl(self, -1, "")
+        self.txt_passwd = wx.TextCtrl(self, -1, "", style=wx.TE_PASSWORD)
         self.btn_save = wx.Button(self, -1, _("Save configuration"))
         self.btn_ok = wx.Button(self, -1, _("OK"))
         self.btn_cancel = wx.Button(self, -1, _("Cancel"))
@@ -53,9 +59,10 @@ class Frm_NewConn(wx.Frame):
 
     def __set_properties(self):
         # begin wxGlade: Frm_NewConn.__set_properties
-        self.SetTitle(_("frame_2"))
+        self.SetTitle(_("New connection"))
         self.connections_title_label.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
         self.configurations_combo_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
+        self.configurations_combo.SetFocus()
         self.configurations_combo.SetSelection(-1)
         self.new_configuration_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.inst_new_configuration_label.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
@@ -137,25 +144,25 @@ class Frm_NewConn(wx.Frame):
 	self.parent.__confname	= configuration[0]
 
 
+
     def btn_save_Click(self, event): # wxGlade: Frm_NewConn.<event_handler>
 
-	self.parent.__server    = self.txt_server.GetValue ()
+        self.parent.__server    = self.txt_server.GetValue ()
         self.parent.__CN        = self.txt_CN.GetValue ()
-	self.parent.__user	= self.text_name.GetValue()
+        self.parent.__user      = self.text_name.GetValue()
         self.parent.__passwd    = self.txt_passwd.GetValue ()
-	self.parent.__confname	= self.configurations_combo.GetValue()
+        self.parent.__confname  = self.configurations_combo.GetValue()
         
         if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) or ( not self.parent.__user ) or ( not self.parent.__confname )) :
             dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
             result = dlg.ShowModal() 
             dlg.Destroy() 
         else:                   
-		gdb = db.Database('./')
-		gdb.createConnectionsTable()
-		gdb.saveConnectionConfiguration ( self.parent.__confname, self.parent.__server , self.parent.__CN, self.parent.__user)
-		configurations = gdb.recoverConnectionConfigurations()
-		dlg = wx.MessageDialog(self, message='Configuration saved.', caption='Succesful operation', style=wx.ICON_INFORMATION)
-		result = dlg.ShowModal() 
-            	dlg.Destroy() 
-
+            gdb = db_c.db ('./')
+            gdb.createConnectionsTable()
+            gdb.saveConnectionConfiguration ( self.parent.__confname, self.parent.__server , self.parent.__CN, self.parent.__user)
+            configurations = gdb.recoverConnectionConfigurations()
+            dlg = wx.MessageDialog(self, message='Configuration saved.', caption='Succesful operation', style=wx.ICON_INFORMATION)
+            result = dlg.ShowModal() 
+            dlg.Destroy()
 # end of class Frm_NewConn

@@ -7,9 +7,9 @@ import logging
 import argparse
 import time
 
-class Database:
+class db:
 
-	_name	='sqlite.db'
+	_name	= 'sqlite.db'
 	_con	= None
 	_dir	= ''
 	
@@ -30,8 +30,7 @@ class Database:
 		except lite.Error, e:
 		    
 		    print "Error %s:" % e.args[0]
-		    sys.exit(1)
-		    
+		    sys.exit(1)		    
 	    
 
 	def __del__ ( self ):
@@ -49,14 +48,13 @@ class Database:
 	def saveConnectionConfiguration ( self , name, server, cn, user):
 		with self._con:    
 			cur = self._con.cursor()
-			cur.execute ("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)",(name, server, cn, user) )
+			cur.executemany ("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)", name, server, cn, user  )
 			self._con.commit()
 
-
-	def recoverConnectionConfiguration ( self, name ):
+	def recoverConnectionConfigurations ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
-			cur.execute( "SELECT * FROM connections WHERE name=?",(name))
+			cur.execute( "SELECT * FROM connections")
 			rows = cur.fetchall()
 			return rows
 
