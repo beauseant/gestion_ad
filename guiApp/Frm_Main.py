@@ -88,7 +88,6 @@ class Frm_Main(wx.Frame):
 				self.Grd_ListaUsrs.InsertRows (cont_user, 1)
 				self.Grd_ListaUsrs.SetCellValue(cont_user,0,k)
 				cont_att = 1
-				print v
 				for att,value in v.items():
 					print v[att]
 					self.Grd_ListaUsrs.SetCellValue(cont_user,cont_att, str(v[att]))
@@ -108,7 +107,7 @@ class Frm_Main(wx.Frame):
     
     def __init__(self, *args, **kwds):
         # begin wxGlade: Frm_Main.__init__
-        kwds["style"] = wx.CAPTION|wx.CLOSE_BOX|wx.MINIMIZE_BOX|wx.MAXIMIZE_BOX|wx.SYSTEM_MENU|wx.RESIZE_BORDER|wx.FRAME_FLOAT_ON_PARENT|wx.CLIP_CHILDREN
+        kwds["style"] = wx.CAPTION|wx.CLOSE_BOX|wx.MAXIMIZE|wx.SYSTEM_MENU|wx.RESIZE_BORDER|wx.FULL_REPAINT_ON_RESIZE
         wx.Frame.__init__(self, *args, **kwds)
         
         # Menu Bar
@@ -154,7 +153,6 @@ class Frm_Main(wx.Frame):
     def __set_properties(self):
         # begin wxGlade: Frm_Main.__set_properties
         self.SetTitle(_("Active Directory Management"))
-        self.SetSize((800, 600))
         self.initFrm_statusbar.SetStatusWidths([-1])
         # statusbar fields
         initFrm_statusbar_fields = [_("initFrm_statusbar")]
@@ -184,9 +182,13 @@ class Frm_Main(wx.Frame):
         sizer_1 = wx.BoxSizer(wx.VERTICAL)
         sizer_1.Add(self.Grd_ListaUsrs, 1, wx.EXPAND|wx.ALIGN_CENTER_HORIZONTAL, 0)
         self.SetSizer(sizer_1)
+        sizer_1.Fit(self)
         self.Layout()
         self.Centre()
         # end wxGlade
+
+    def _Frm_NewConn__do_layout ( self ):
+	self.__do_layout ()
 
     def btn_newConn_Click(self, event):  # wxGlade: Frm_Main.<event_handler>
         nc = Frm_NewConn.Frm_NewConn(parent=self)
@@ -216,8 +218,6 @@ class Frm_Main(wx.Frame):
         if result == wx.ID_YES:
             self.Destroy ()
 
-
-        
     def OnOpenFileDialogButton(self, event):  # wxGlade: Frm_Main.<event_handler>
         filename = "" # Use filename as a flag
         dlg = wx.FileDialog(self, message="Choose a file")

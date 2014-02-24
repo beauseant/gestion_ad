@@ -30,7 +30,7 @@ class Frm_NewConn(wx.Frame):
 	
 
         # begin wxGlade: Frm_NewConn.__init__
-        kwds["style"] = wx.TAB_TRAVERSAL
+        kwds["style"] = wx.ICONIZE|wx.MINIMIZE|wx.TAB_TRAVERSAL|wx.CLIP_CHILDREN
         wx.Frame.__init__(self, *args, **kwds)
         self.connections_title_label = wx.StaticText(self, -1, _("Connections Properties"))
         self.configurations_combo_label = wx.StaticText(self, -1, _("Saved configurations"))
@@ -124,8 +124,9 @@ class Frm_NewConn(wx.Frame):
         self.MakeModal(False)
         self.Destroy()
         event.Skip()
+
     def btn_ok_Click(self, event):  # wxGlade: Frm_NewConn.<event_handler>
-        #Recopilamos toda la información introducida por el usuario, comprobamos que esta todo correcto e intentamos lanzar una conexion:
+        #Recopilamos toda la información introduclida por el usuario, comprobamos que esta todo correcto e intentamos lanzar una conexion:
         self.parent.__server    = self.txt_server.GetValue ()
         self.parent.__CN        = self.txt_CN.GetValue ()
 	self.parent.__user	= self.text_name.GetValue()
@@ -142,6 +143,7 @@ class Frm_NewConn(wx.Frame):
                 dlg.Destroy()
             else:
                 self.MakeModal(False)
+		self.parent.__do_layout()
                 self.Destroy()
 
 

@@ -14,6 +14,9 @@ import lib.db as db
 
 class gestionUsuarios:
 
+	public static final String ACCOUNT_NO_EXPIRE 	= "-150901";
+	public static final String ACCOUNT_NO_USE	= "150899";
+
 	__usuarios = {}
 	__db	   = ''
 	__ldap_con = ''
