@@ -22,11 +22,13 @@ class db:
 		try:
 		    self._con = lite.connect( self._name )
 		    
+
 		    cur = self._con.cursor()    
 		    cur.execute('SELECT SQLITE_VERSION()')
 		    
 		    data = cur.fetchone()
-		    
+
+		    self._con.text_factory = str
 
 		    self.createCacheTable ()  
              
@@ -76,15 +78,19 @@ class db:
 			return rows
 		
 		
-		
-		
 	def createCacheTable (self ):
 		with self._con:    
 			cur = self._con.cursor()
 			cur.execute("DROP TABLE IF EXISTS cache")
-			cur.execute( 'CREATE TABLE cache  (login VARCHAR(40), lastLogon,  accountExpires,' \
-						'sAMAccountName TEXT)')
+			cur.execute("CREATE TABLE cache  (login TEXT, lastAccess DATE, expiryDate DATE, cn TEXT, daysFromLastAccess INT, daysToExpire INT)")
 			self._con.commit()
+
+	def saveUsersCacheTable (self, login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire):
+		with self._con:
+			cur = self._con.cursor()
+			cur.execute("INSERT INTO cache  (login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire) VALUES (?,?,?,?,?,?)", (login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire))
+			#self._con.commit()
+
 			
 			
 		
