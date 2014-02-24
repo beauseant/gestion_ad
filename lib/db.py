@@ -52,8 +52,14 @@ class db:
 	def saveConnectionConfiguration ( self , name, server, cn, user):
 		with self._con:    
 			cur = self._con.cursor()
-			cur.execute("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)", (name, server, cn, user)  )
-			self._con.commit()
+			cur.execute("SELECT rowid FROM connections WHERE name=?", (name,))
+			d = cur.fetchone()
+			print d
+			if not (d):
+				cur.execute("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)", (name, server, cn, user))
+				self._con.commit()
+			else:
+				cur.execute("UPDATE connections SET name=?, server=?, cn=?, user=? WHERE rowid=? ", (name, server, cn, user,d[0]))
 
 	def recoverConnectionConfiguration ( self, name ):
 		with self._con:    

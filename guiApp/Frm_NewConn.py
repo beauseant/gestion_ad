@@ -45,7 +45,8 @@ class Frm_NewConn(wx.Frame):
         self.text_name = wx.TextCtrl(self, -1, "")
         self.txt_passwd_label = wx.StaticText(self, -1, _("Password"))
         self.txt_passwd = wx.TextCtrl(self, -1, "", style=wx.TE_PASSWORD)
-        self.btn_save = wx.Button(self, -1, _("Save configuration"))
+        self.passwd_info = wx.StaticText(self, -1, _("(Your password will never be stored)"))
+        self.btn_save = wx.Button(self, -1, _("Save"))
         self.btn_ok = wx.Button(self, -1, _("OK"))
         self.btn_cancel = wx.Button(self, -1, _("Cancel"))
 
@@ -77,6 +78,7 @@ class Frm_NewConn(wx.Frame):
         self.configurations_combo.SetFocus()
         self.new_configuration_label.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD, 0, ""))
         self.inst_new_configuration_label.SetFont(wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.NORMAL, 0, ""))
+        self.passwd_info.SetFont(wx.Font(8, wx.DEFAULT, wx.ITALIC, wx.NORMAL, 0, ""))
         # end wxGlade
 
     def __do_layout(self):
@@ -105,9 +107,10 @@ class Frm_NewConn(wx.Frame):
         grid_sizer_2.AddGrowableRow(5)
         grid_sizer_2.AddGrowableCol(1)
         sizer_8.Add(grid_sizer_2, 1, wx.ALL|wx.EXPAND, 20)
-        sizer_9.Add(self.btn_save, 0, wx.ADJUST_MINSIZE, 0)
+        sizer_8.Add(self.passwd_info, 0, wx.LEFT|wx.ADJUST_MINSIZE, 200)
+        sizer_9.Add(self.btn_save, 0, wx.LEFT|wx.ADJUST_MINSIZE, 10)
         sizer_9.Add(self.btn_ok, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 100)
-        sizer_9.Add(self.btn_cancel, 0, wx.RIGHT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 80)
+        sizer_9.Add(self.btn_cancel, 0, wx.LEFT|wx.ALIGN_CENTER_HORIZONTAL|wx.ALIGN_CENTER_VERTICAL|wx.ADJUST_MINSIZE, 10)
         sizer_8.Add(sizer_9, 0, wx.ALL|wx.ADJUST_MINSIZE, 15)
         sizer_7.Add(sizer_8, 1, wx.ALL|wx.EXPAND, 20)
         self.SetSizer(sizer_7)
@@ -161,7 +164,7 @@ class Frm_NewConn(wx.Frame):
         self.parent.__confname  = self.configurations_combo.GetValue()
 
 
-        if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__passwd ) or ( not self.parent.__user ) or ( not self.parent.__confname )) :
+        if ( ( not self.parent.__server ) or ( not self.parent.__CN ) or ( not self.parent.__user ) or ( not self.parent.__confname )) :
             dlg = wx.MessageDialog(self, message='Please, fill in all the blanks.', caption='error:',style=wx.ICON_ERROR )
             result = dlg.ShowModal() 
             dlg.Destroy() 
