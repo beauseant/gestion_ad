@@ -30,7 +30,7 @@ class Frm_NewConn(wx.Frame):
 	
 
         # begin wxGlade: Frm_NewConn.__init__
-        kwds["style"] = wx.ICONIZE|wx.MINIMIZE|wx.TAB_TRAVERSAL|wx.CLIP_CHILDREN
+        kwds["style"] = wx.CAPTION|wx.STAY_ON_TOP|wx.TAB_TRAVERSAL|wx.CLIP_CHILDREN
         wx.Frame.__init__(self, *args, **kwds)
         self.connections_title_label = wx.StaticText(self, -1, _("Connections Properties"))
         self.configurations_combo_label = wx.StaticText(self, -1, _("Saved configurations"))

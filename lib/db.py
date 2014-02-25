@@ -89,7 +89,21 @@ class db:
 		with self._con:
 			cur = self._con.cursor()
 			cur.execute("INSERT INTO cache  (login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire) VALUES (?,?,?,?,?,?)", (login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire))
-			#self._con.commit()
+
+	def recoverUsersCacheTable (self):
+		with self._con:
+			cur = self._con.cursor()
+			cur.execute("SELECT * FROM cache")
+			rows = cur.fetchall()
+			return rows
+
+	def recoverUsersCacheTableSorted (self, criteria, order):
+		with self._con:
+			query = "SELECT * FROM cache ORDER BY " + criteria + " " + order
+			cur = self._con.cursor()
+			cur.execute(query)
+			rows = cur.fetchall()
+			return rows
 
 			
 			

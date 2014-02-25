@@ -27,6 +27,8 @@ class Frm_Main(wx.Frame):
     _Frm_NewConn__passwd    = ''
     _ListaUsuarios 	        = {}
     _gdb                    = ''
+    _connected	    	    = 0
+    _ordered		    = 0
     
     
     def _Frm_NewConn__connectToServer ( self, *args, **kwds ):
@@ -35,40 +37,25 @@ class Frm_Main(wx.Frame):
         self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
             
 	ListaUsrs 	= ad.gestionUsuarios ( 'administrador@tsc.uc3m.es', self._Frm_NewConn__passwd , 'cn=Users,dc=tsc, dc=uc3m,dc=es', self._Frm_NewConn__server )
-	#print ListaUsrs[0]
-        #Do a lot stuff
-        #connect server
-        #print users
+
 	self._ListaUsuarios =  ListaUsrs.getAllUsers ()
 	if len ( self._ListaUsuarios) > 0:
 	        cad_conn =  'connect to %s' % ( self._Frm_NewConn__server )
 	        initFrm_statusbar_fields = [_( cad_conn )]
 	        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
-		cont_user = 0
 
+		#Save all the users in database table Cache
 		for k, v in self._ListaUsuarios.items():
 			user_array = {}
 			for att,value in v.items():
 				user_array[att] = value
-
-			
 			self._gdb.saveUsersCacheTable(k, str (user_array['fechaUltLogin']), str ( v['fechaCaducidad']), v['cn'], v['diasUltimoLogin'], v['diasParaCaducar'])
 
+		#Get all the users from the database and print them
+		usersAD = self._gdb.recoverUsersCacheTable()
+		self.__printActiveDirectoryUsers (usersAD)
 
-
-		for k, v in self._ListaUsuarios.items():
-			self.Grd_ListaUsrs.InsertRows (cont_user, 1)
-			self.Grd_ListaUsrs.SetCellValue(cont_user,0,k)
-			cont_att = 1
-			print v
-			for att,value in v.items():
-				print v[att]
-				self.Grd_ListaUsrs.SetCellValue(cont_user,cont_att, str(v[att]))
-				cont_att = cont_att + 1
-			cont_user = cont_user + 1
-		self.Grd_ListaUsrs.AutoSize()
-		self.Grd_ListaUsrs.SetScrollLineX(500)
-		self.Grd_ListaUsrs.SetScrollLineY(500)
+		self._connected = 1
 		return 1
 
 	else:
@@ -77,6 +64,28 @@ class Frm_Main(wx.Frame):
 	        self.initFrm_statusbar.SetStatusText(initFrm_statusbar_fields[0], 0)
 
 	        return 0
+
+    def __printActiveDirectoryUsers (self, users):
+
+	#Clear the grid
+	rows = self.Grd_ListaUsrs.GetNumberRows()
+	self.Grd_ListaUsrs.ClearGrid()
+	self.Grd_ListaUsrs.DeleteRows(0,rows)
+
+	#Repaint the users information
+	cont_user = 0
+	for user in users:
+		self.Grd_ListaUsrs.InsertRows (cont_user, 1)
+		cont_val = 0
+		for value in user:
+			if value == -150902 or value == 150900:
+				value = "NEVER"
+			self.Grd_ListaUsrs.SetCellValue(cont_user,cont_val, str(value))
+			cont_val = cont_val + 1
+		cont_user = cont_user + 1
+	self.Grd_ListaUsrs.AutoSize()
+	self.Grd_ListaUsrs.SetScrollLineX(500)
+	self.Grd_ListaUsrs.SetScrollLineY(500)
         
     
     def __init__(self, *args, **kwds):
@@ -111,12 +120,19 @@ class Frm_Main(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.opc_newcon_click, self.opc_newcon)
         self.Bind(wx.EVT_MENU, self.opc_quit_click, self.opc_quit)
+        self.Bind(wx.grid.EVT_GRID_CMD_LABEL_LEFT_CLICK, self.label_left_click, self.Grd_ListaUsrs)
         # end wxGlade
 
         self.Bind(wx.EVT_CLOSE, self.opc_quit_click)
 
         self._gdb = db_c.db ('./')
         self._gdb.createConnectionsTable()
+	self._gdb.createCacheTable()
+
+	if self._connected == 0:
+		nc = Frm_NewConn.Frm_NewConn(parent=self)
+        	nc.Show(True)
+        	nc.MakeModal(True)
 
         
         
@@ -193,5 +209,33 @@ class Frm_Main(wx.Frame):
         if filename:
             print filename
         # use the file name
+
+    def label_left_click(self, event): # wxGlade: Frm_Main.<event_handler>
+	label = event.GetCol()
+	criteria	= ""
+	order 		= ""
+	if self._ordered == 0:
+		order = "ASC"
+		self._ordered = 1
+	else:
+		order = "DESC"
+		self._ordered = 0
+	
+	if label == 0:
+		criteria = "login"
+	elif label == 1:
+		criteria = "lastAccess"
+	elif label == 2:
+		criteria = "expiryDate"
+	elif label == 3:
+		criteria = "cn"
+	elif label == 4:
+		criteria = "daysFromLastAccess"
+	elif label == 5:
+		criteria = "daysToExpire"
+
+        usersADSorted = self._gdb.recoverUsersCacheTableSorted (criteria, order)
+	self.__printActiveDirectoryUsers (usersADSorted)
+	self.__do_layout()
 
 # end of class Frm_Main
