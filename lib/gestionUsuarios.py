@@ -81,7 +81,7 @@ class gestionUsuarios:
 		salida = [0,'Descripcion error']
 
 		try:
-			deleteDN = self.__usuarios[login]['cn']
+			deleteDN = self.__usuarios[login.strip()]['cn']
 			self.__ldap_con.delete_s(deleteDN)
 			salida [0] = 1
 		except Exception as e:
