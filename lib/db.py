@@ -7,9 +7,11 @@ import logging
 import argparse
 import time
 
-class DataBase:
 
-	_name	= 'docs.db'
+
+class db:
+
+	_name	= 'sqlite.db'
 	_con	= None
 	_dir	= ''
 	
@@ -19,22 +21,22 @@ class DataBase:
 
 		try:
 		    self._con = lite.connect( self._name )
-
-		    #Base de datos solo en memoria, no se guarda nada el terminar:
-		    #self._con = lite.connect( :memory )
 		    
+
 		    cur = self._con.cursor()    
 		    cur.execute('SELECT SQLITE_VERSION()')
 		    
 		    data = cur.fetchone()
-		    
-		    print "SQLite version: %s" % data                
+
+		    self._con.text_factory = str
+
+		    self.createCacheTable ()  
+             
 		    
 		except lite.Error, e:
 		    
 		    print "Error %s:" % e.args[0]
-		    sys.exit(1)
-		    
+		    sys.exit(1)		    
 	    
 
 	def __del__ ( self ):
@@ -42,54 +44,69 @@ class DataBase:
 			self._con.close()
 
 
-	def cargarDatos ( self ):
-
-
-		totales = []
-
-
-		for base, dirs, files in os.walk( self._dir):
-			logging.debug ( 'Cargando %s' % ( base ) )
-			for fich in files:
-				with self._con:    
-					cur = self._con.cursor()
-					with open(base + '/' + fich) as f:
-						data = f.read()
-						totales.append  ((fich, unicode (data, "utf-8")) )
-
-		#Grabamos las cosas en una tabla de tipo fts4 que se supone se encuentra optimizida para buscar textos en ella:
+	def createConnectionsTable ( self ):
 		with self._con:    
 			cur = self._con.cursor()    
-			cur.execute("DROP TABLE IF EXISTS Documentos_fts4")
-			cur.execute("CREATE VIRTUAL TABLE Documentos_fts4 USING fts4 (Name TEXT, Contenido TEXT)")
+			#cur.execute("DROP TABLE IF EXISTS connections")
+			cur.execute("CREATE TABLE if not exists  connections  (name TEXT, server TEXT, cn TEXT, user TEXT)")
+
+
+	def saveConnectionConfiguration ( self , name, server, cn, user):
+		with self._con:    
 			cur = self._con.cursor()
-			cur.executemany ("INSERT INTO Documentos_fts4 (Name, Contenido) VALUES (?,?)", totales  )
+			cur.execute("SELECT rowid FROM connections WHERE name=?", (name,))
+			d = cur.fetchone()
+			print d
+			if not (d):
+				cur.execute("INSERT INTO connections (name, server, cn, user) VALUES (?,?,?,?)", (name, server, cn, user))
+				self._con.commit()
+			else:
+				cur.execute("UPDATE connections SET name=?, server=?, cn=?, user=? WHERE rowid=? ", (name, server, cn, user,d[0]))
+
+	def recoverConnectionConfiguration ( self, name ):
+		with self._con:    
+			cur = self._con.cursor()    
+			cur.execute( "SELECT * FROM connections WHERE name=?", (name,))
+			rows = cur.fetchone()
+			return rows
+
+	def recoverAllConfigurations ( self ):
+		with self._con:    
+			cur = self._con.cursor()    
+			cur.execute( "SELECT * FROM connections")
+			rows = cur.fetchall()
+			return rows
+		
+		
+	def createCacheTable (self ):
+		with self._con:    
+			cur = self._con.cursor()
+			cur.execute("DROP TABLE IF EXISTS cache")
+			cur.execute("CREATE TABLE cache  (login TEXT, lastAccess DATE, expiryDate DATE, cn TEXT, daysFromLastAccess INT, daysToExpire INT)")
 			self._con.commit()
 
-		#Grabamos las cosas en una tabla normal que deberia dar unos resultados netamente inferiores a una tabla fts4 al buscar textos:
-		with self._con:    
-			cur = self._con.cursor()    
-			cur.execute("DROP TABLE IF EXISTS Documentos")
-			cur.execute("CREATE TABLE Documentos  (Name TEXT, Contenido TEXT)")
+	def saveUsersCacheTable (self, login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire):
+		with self._con:
 			cur = self._con.cursor()
-			cur.executemany ("INSERT INTO Documentos (Name, Contenido) VALUES (?,?)", totales  )
-			self._con.commit()
+			cur.execute("INSERT INTO cache  (login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire) VALUES (?,?,?,?,?,?)", (login, lastAccess, expiryDate, cn, daysFromLastAccess, daysToExpire))
 
-
-
-	def _lanzarConsulta ( self, consulta ):
-		with self._con:    
-			cur = self._con.cursor()    
-			cur.execute( consulta )
+	def recoverUsersCacheTable (self):
+		with self._con:
+			cur = self._con.cursor()
+			cur.execute("SELECT * FROM cache")
 			rows = cur.fetchall()
 			return rows
 
+	def recoverUsersCacheTableSorted (self, criteria, order):
+		with self._con:
+			query = "SELECT * FROM cache ORDER BY " + criteria + " " + order
+			cur = self._con.cursor()
+			cur.execute(query)
+			rows = cur.fetchall()
+			return rows
 
-	def buscarPalabra ( self, palabra,fts4 = 0 ):
+			
+			
+		
+		
 
-		#¿Queremos hacer la busqueda en la tabla fts4 o en una tabla normal?
-
-		if not (fts4):
-			return self._lanzarConsulta ( "SELECT rowid, Name FROM " + 'Documentos' + " WHERE Contenido LIKE '%" + palabra + "%'" )
-		else:
-			return self._lanzarConsulta ( "SELECT rowid, Name FROM " + 'Documentos_fts4' + " WHERE Contenido MATCH '" + palabra + "'" )
